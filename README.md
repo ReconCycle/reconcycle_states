@@ -22,55 +22,15 @@ When tests with dummy interface are done change the following @ self._topic:
 
 
 Current flow in FlexBe:
- --> Starting new behavior...
- Writting to mongoDB _id: matej!
- Reading _id: matej from mongoDB: [-]
-     header: 
-      seq: 0
-      stamp: 
-        secs: 0
-        nsecs:         0
-      frame_id: ''
-    name: 
-      - a
-      - b
-      - c
-      - d
-      - e
-      - f
-      - g
-    position: [1, 2, 3, 4, 5, 6, 7]
-    velocity: []
-    effort: []
- Goal sent: header: [-]
-      seq: 0
-      stamp: 
-        secs: 0
-        nsecs:         0
-      frame_id: ''
-    name: 
-      - a
-      - b
-      - c
-      - d
-      - e
-      - f
-      - g
-    position: [1, 2, 3, 4, 5, 6, 7]
-    velocity: []
-    effort: []
- Action Server reply: [-]
-     final_joints: 
-      header: 
-        seq: 0
-        stamp: 
-          secs: 0
-          nsecs:         0
-        frame_id: ''
-      name: []
-      position: []
-      velocity: []
-      effort: []
-    fully_succeeded: True
- Exiting JointTrapVelAction state
+ 
+[] --> Starting new behavior...
 
+[]] Writting to mongoDB _id: matej!
+
+[] Reading _id: matej from mongoDB: [+]
+
+[] Goal sent: header: [+]
+
+[] Action Server reply: [+]
+
+[] Exiting JointTrapVelAction state
