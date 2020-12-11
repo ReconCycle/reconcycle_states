@@ -35,8 +35,8 @@ class WriteToMongo(EventState):
 
         #---------------------------------------------------------------------------------------
         # Switch JointState... below with userdata.entry_data when tests are done
-        #entry_data = JointState(position=[1,2,3,4,5,6,7], name=['a','b','c','d', 'e', 'f', 'g'])
-        entry_data = userdata.entry_data
+        entry_data = JointState(position=[1,2,3,4,5,6,7], name=['a','b','c','d', 'e', 'f', 'g'])
+        #entry_data = userdata.entry_data
         #---------------------------------------------------------------------------------------
 
 
@@ -53,6 +53,9 @@ class WriteToMongo(EventState):
         #    self.id_num = doc_id_list[-1] + 1       
        
         self.id_num = userdata.entry_name
+        is_insidedb = None
+        is_insidedb = user_collection.find({"_id": self.id_num})
+
         # Declare document being writen to MongoDB
         # Currently used self.id_num can be canged to userdata.entry_name as document ID!
         state_collections = [{"_id": self.id_num,
@@ -65,10 +68,13 @@ class WriteToMongo(EventState):
                              "effort": entry_data.effort}]
             
         # Write to MongoDB
+        if is_insidedb:
+            insu = user_collection.delete_one({"_id":self.id_num})
+        
         ins = user_collection.insert_many(state_collections)
 
-        rospy.loginfo("Successfully written: {}".format(state_collections))
-        Logger.loginfo("Written to _id {} into MongoDB".format(self.id_num))
+        
+        Logger.loginfo("Writting to mongoDB _id: {}!".format(self.id_num))
     
         # Uncomment only if you would like to clear collection in Database (delete all documents)
         #cdocs = user_collection.find()
@@ -78,7 +84,6 @@ class WriteToMongo(EventState):
         #for i in del_list:
         #   print(i)
         #   user_collection.delete_one({"_id": i})
-
         return 'continue'
              
     def on_enter(self, userdata):
