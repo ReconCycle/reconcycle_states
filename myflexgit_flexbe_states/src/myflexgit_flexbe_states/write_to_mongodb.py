@@ -74,7 +74,7 @@ class WriteToMongo(EventState):
         ins = user_collection.insert_many(state_collections)
 
         
-        Logger.loginfo("Writting to mongoDB _id: {}...".format(self.id_num))
+        Logger.loginfo("Writing to mongoDB _id: {}...".format(self.id_num))
     
         # Uncomment only if you would like to clear collection in Database (delete all documents)
         #cdocs = user_collection.find()
