@@ -35,8 +35,8 @@ class WriteToMongo(EventState):
 
         #---------------------------------------------------------------------------------------
         # Switch JointState... below with userdata.entry_data when tests are done
-        entry_data = JointState(position=[1,2,3,4,5,6,7], name=['a','b','c','d', 'e', 'f', 'g'])
-        #entry_data = userdata.entry_data
+        #entry_data = JointState(position=[1,2,3,4,5,6,7], name=['a','b','c','d', 'e', 'f', 'g'])
+        entry_data = userdata.entry_data
         #---------------------------------------------------------------------------------------
 
 
