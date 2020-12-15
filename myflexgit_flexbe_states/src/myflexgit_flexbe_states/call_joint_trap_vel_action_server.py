@@ -26,7 +26,8 @@ class CallJointTrap(EventState):
         super(CallJointTrap, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['joints_data'], output_keys = ['joint_values'])
 
         # replace 'panda_2/joint_trap_vel_action_server' from dummies with 'joint_trap_vel_action_server'
-        self._topic = 'panda_2/joint_trap_vel_action_server'
+        #self._topic = 'panda_2/joint_trap_vel_action_server'
+        self._topic = 'joint_trap_vel_action_server'
         self._client = actionlib.SimpleActionClient(self._topic, robot_module_msgs.msg.JointTrapVelAction)
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointTrapVelAction}) # pass required clients as dict (topic: type)
         # JointTrapVelAction
