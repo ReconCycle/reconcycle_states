@@ -50,6 +50,7 @@ class CallJointTrap(EventState):
         # JointState() is used for tests. Replace JointState() with userdata.joints_data.
         self.goal_joint = userdata.joints_data #JointState()
         goal = robot_module_msgs.msg.JointTrapVelGoal([self.goal_joint], 0.05, None)
+        Logger.loginfo("Starting sending goal...")
 
         try:
             self._client.send_goal_and_wait(goal, execute_timeout=rospy.Duration(5))
@@ -64,5 +65,6 @@ class CallJointTrap(EventState):
         if not self._client.get_result():
             self._client.cancel_goal()
             Logger.loginfo('Cancelled active action goal.')
-        Logger.loginfo('Exiting JointTrapVelAction state')
+        Logger.loginfo('Finished sending goal to JointTrapVelGoal.')
+        return 'continue'
         
