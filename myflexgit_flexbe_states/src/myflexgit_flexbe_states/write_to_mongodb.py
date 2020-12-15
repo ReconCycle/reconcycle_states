@@ -74,7 +74,7 @@ class WriteToMongo(EventState):
         ins = user_collection.insert_many(state_collections)
 
         
-        Logger.loginfo("Writting to mongoDB _id: {}!".format(self.id_num))
+        Logger.loginfo("Writting to mongoDB _id: {}...".format(self.id_num))
     
         # Uncomment only if you would like to clear collection in Database (delete all documents)
         #cdocs = user_collection.find()
@@ -87,7 +87,9 @@ class WriteToMongo(EventState):
         return 'continue'
              
     def on_enter(self, userdata):
-        rospy.loginfo('On Enter callback happened.')
+        rospy.loginfo('Starting write to MongoDB.')
+        Logger.loginfo('Starting write to MongoDB...')
 
     def on_exit(self, userdata):
         rospy.loginfo('Exit callback happened.')
+        Logger.loginfo("Finished writting to MongoDB!")
