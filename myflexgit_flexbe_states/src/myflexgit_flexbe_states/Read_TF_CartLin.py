@@ -28,6 +28,7 @@ class ReadT2(EventState):
         
   
     def on_enter(self, userdata):
+        Logger.loginfo("Started reading TF (CartLin)...")
         self.listener = tf.TransformListener()  
         try:
             if 'target2' in userdata:
@@ -51,10 +52,10 @@ class ReadT2(EventState):
         data.orientation.y = rot[1]
         data.orientation.z = rot[2]
         data.orientation.w = rot[3]
-        Logger.loginfo("Pose data: {}".format(data))
+        Logger.loginfo("Pose data from tf (CartLin): {}".format(data))
         userdata.t2_data = data
         return 'continue'  
 
     def on_exit(self, userdata):
-        Logger.loginfo('Exiting lookupTransform of provided target')
+        Logger.loginfo('Exiting read TF (CartLin).')
         return 'continue'

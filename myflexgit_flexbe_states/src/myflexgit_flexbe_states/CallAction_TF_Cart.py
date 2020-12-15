@@ -31,6 +31,7 @@ class CallT1(EventState):
         self._client = actionlib.SimpleActionClient(self._topic, robot_module_msgs.msg.CartTrapVelAction)
 
     def on_enter(self, userdata):
+        Logger.loginfo("Started call (Cart)...")
         # After test change Pose(position =[1, 1, 1], orientation = [0, 0, 0, 1]) to userdata.pose_data
         #test = Pose()
         self.goal_pose = userdata.t1_data
@@ -52,7 +53,7 @@ class CallT1(EventState):
         
 
     def on_exit(self, userdata):
-        Logger.loginfo('Exiting CartTrapVelAction state')
+        Logger.loginfo('Exiting call (Cart).')
         return 'continue'
 
 
