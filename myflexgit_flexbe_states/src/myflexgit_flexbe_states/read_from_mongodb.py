@@ -88,12 +88,14 @@ class ReadFromMongo(EventState):
         
         # data output to output_keys -> 'joints_data'
         userdata.joints_data = output_data
-        Logger.loginfo("Reading _id: {} from mongoDB: \n {}".format(selected_id, userdata.joints_data))      
+        Logger.loginfo("Reading _id: {} from mongoDB: ... \n {}".format(selected_id, userdata.joints_data))      
         return 'continue'  
             
     def on_enter(self, userdata):
         rospy.loginfo('On Enter callback happened.')
+        Logger.loginfo("Starting read from MongoDB...")
 
     def on_exit(self, userdata):
         rospy.loginfo('Exit callback happened.')
+        Logger.loginfo("Finished reading from MongoDB.")
         
