@@ -27,7 +27,8 @@ class CallT2(EventState):
         super(CallT2, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['t2_data'], output_keys = ['t2_out'])
         
         # After thest change 'panda_2/cart_trap_vel_action_server' to 'cart_trap_vel_action_server' !
-        self._topic = 'panda_1/cart_lin_task_action_server'
+        #self._topic = 'panda_1/cart_lin_task_action_server'
+        self._topic = 'cart_lin_task_action_server'
         self._client = actionlib.SimpleActionClient(self._topic, robot_module_msgs.msg.CartLinTaskAction)
 
     def on_enter(self, userdata):
