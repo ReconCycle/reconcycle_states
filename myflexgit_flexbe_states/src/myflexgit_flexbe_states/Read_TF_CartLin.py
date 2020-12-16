@@ -42,7 +42,7 @@ class ReadT2(EventState):
         
     def execute(self, userdata):
         try:
-            #self.listener.waitForTransform("target1", "target2", rospy.Time.now(), rospy.Duration(4.0))
+            #self.listener.waitForTransform(userdata.target1, userdata.target2, rospy.Time.now(), rospy.Duration(4.0))
             (trans, rot) = self.listener.lookupTransform(self.target_frame1, self.target_frame2, rospy.Time(0))
             Logger.loginfo("target1: {}".format(userdata.target1))
             Logger.loginfo("target2: {}".format(userdata.target2))
