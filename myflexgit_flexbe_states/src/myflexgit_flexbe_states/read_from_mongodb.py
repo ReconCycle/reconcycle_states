@@ -27,12 +27,19 @@ class ReadFromMongo(EventState):
     def __init__(self):
         rospy.loginfo('__init__ callback happened.')
         print("INIT")        
-        super(ReadFromMongo, self).__init__(outcomes = ['continue'], input_keys = ['entry_name'], output_keys = ['joints_data'])
+        super(ReadFromMongo, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['entry_name'], output_keys = ['joints_data'])
+        self.reachable = True
 
     def execute(self, userdata):
         print("execute")
         rospy.loginfo('Execute callback happened.')
-        client = pymongo.MongoClient('mongodb://localhost:27017/')  # if server does not run locally, please change it to your needs
+        try:
+            client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS = 3000)  # if server does not run locally, please change it to your needs
+            client.server_info()
+        except pymongo.errors.ServerSelectionTimeoutError as er:
+            Logger.loginfo("MongoDB is not reachable...")
+            self.reachable = False
+            return 'failed'
 
 
         # define base created @write_to_mongo -> "UserData"
@@ -97,5 +104,8 @@ class ReadFromMongo(EventState):
 
     def on_exit(self, userdata):
         rospy.loginfo('Exit callback happened.')
-        Logger.loginfo("Finished reading from MongoDB.")
+        if self.reachable:
+            Logger.loginfo("Finished reading from MongoDB.")
+        else:
+            Logger.loginfo("Could not read from MongoDB!")
         
