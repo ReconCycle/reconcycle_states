@@ -15,7 +15,8 @@ class ReadT1(EventState):
 
     #< t1_data  Pose()              Read a frame from TF
 
-    ># target1  userdata.target1     Transform this frame
+    ># target1  userdata.target1    Transform this frame
+    ># target2  userdata.target2    Transform this frame
 
     <= continue                     Written successfully
     <= failed                       Failed
@@ -23,7 +24,7 @@ class ReadT1(EventState):
 
     def __init__(self):
         rospy.loginfo('__init__ callback happened.')   
-        super(ReadT1, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target1'], output_keys = ['t1_data'])
+        super(ReadT1, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target1', 'target2'], output_keys = ['t1_data'])
         
   
     def on_enter(self, userdata):
@@ -31,20 +32,24 @@ class ReadT1(EventState):
         Logger.loginfo("Started reading TF (Cart)...")
         try:
             if 'target1' in userdata:
-                self.target_frame = userdata.target1
+                self.target_frame1 = userdata.target1
+                self.target_frame2 = userdata.target2
             else:
-                raise ValueError('Target frame should be specified in userdata as \'target1\'!')
+                raise ValueError('Target frame should be specified in userdata as \'target1\' or \'target2\'!')
         except Exception as e:
             Logger.loginfo('Targer frame not in Pose() structure')
             return 'failed'
         
     def execute(self, userdata):
-        try:
-            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
+        try:            
+            #self.listener.waitForTransform("target1", "target2", rospy.Time.now(), rospy.Duration(4.0))
+            (trans, rot) = self.listener.lookupTransform(self.target_frame1, self.target_frame2, rospy.Time(0))
             Logger.loginfo("target1: {}".format(userdata.target1))
+            Logger.loginfo("target2: {}".format(userdata.target2))
             Logger.loginfo("trans: {}".format(trans))
             Logger.loginfo("rot: {}".format(rot))
         except (tf.LookupException, tf.ConnectivityException):
+            Logger.loginfo("lookup")
             return 'failed'
 
         data = Pose()
