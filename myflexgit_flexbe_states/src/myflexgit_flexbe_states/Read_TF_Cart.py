@@ -5,7 +5,6 @@ from geometry_msgs.msg import Pose
 import tf
 from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
-import actionlib
 
 
 class ReadT1(EventState):
@@ -16,7 +15,7 @@ class ReadT1(EventState):
 
     #< t1_data  Pose()              Read a frame from TF
 
-    ># target1  userdata.target     Transform this frame
+    ># target1  userdata.target1     Transform this frame
 
     <= continue                     Written successfully
     <= failed                       Failed
@@ -37,12 +36,16 @@ class ReadT1(EventState):
                 raise ValueError('Target frame should be specified in userdata as \'target1\'!')
         except Exception as e:
             Logger.loginfo('Targer frame not in Pose() structure')
+            return 'failed'
         
     def execute(self, userdata):
-        (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
-        Logger.loginfo("target1: {}".format(userdata.target1))
-        Logger.loginfo("trans: {}".format(trans))
-        Logger.loginfo("rot: {}".format(rot))
+        try:
+            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
+            Logger.loginfo("target1: {}".format(userdata.target1))
+            Logger.loginfo("trans: {}".format(trans))
+            Logger.loginfo("rot: {}".format(rot))
+        except (tf.LookupException, tf.ConnectivityException):
+            return 'failed'
 
         data = Pose()
         data.position.x = trans[0]
