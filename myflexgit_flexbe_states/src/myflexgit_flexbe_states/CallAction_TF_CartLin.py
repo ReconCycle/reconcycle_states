@@ -38,9 +38,13 @@ class CallT2(EventState):
         self.goal_pose = userdata.t2_data
         goal = robot_module_msgs.msg.CartLinTaskGoal([self.goal_pose], 0.05, None)    
         
-        self._client.send_goal(goal)
-        self._client.wait_for_result()
-        Logger.loginfo("Goal sent: {}".format(str(self.goal_pose)))
+        try:
+            self._client.send_goal(goal)
+            self._client.wait_for_result()
+            Logger.loginfo("Goal sent: {}".format(str(self.goal_pose)))
+        except Exception as e:
+            Logger.loginfo("No result or server is not active!")
+            return 'failed'        
               
         self.result = self._client.get_result()
         Logger.loginfo("Action Server reply: \n {}".format(str(self.result)))    
