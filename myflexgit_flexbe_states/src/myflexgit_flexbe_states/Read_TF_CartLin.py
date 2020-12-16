@@ -39,10 +39,13 @@ class ReadT2(EventState):
             Logger.loginfo('Targer frame not in Pose() structure')
         
     def execute(self, userdata):
-        (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
-        Logger.loginfo("target2: {}".format(userdata.target2))
-        Logger.loginfo("trans: {}".format(trans))
-        Logger.loginfo("rot: {}".format(rot))
+        try:
+            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
+            Logger.loginfo("target2: {}".format(userdata.target2))
+            Logger.loginfo("trans: {}".format(trans))
+            Logger.loginfo("rot: {}".format(rot))
+        except (tf.LookupException, tf.ConnectivityException):
+            return 'failed'
 
         data = Pose()
         data.position.x = trans[0]
