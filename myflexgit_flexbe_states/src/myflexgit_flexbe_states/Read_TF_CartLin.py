@@ -17,6 +17,7 @@ class ReadT2(EventState):
     #< t2_data  Pose()              Read a frame from TF
 
     ># target2  userdata.target2    Transform this frame
+    ># target1  userdata.target1
 
     <= continue                     Written successfully
     <= failed                       Failed
@@ -24,7 +25,7 @@ class ReadT2(EventState):
 
     def __init__(self):
         rospy.loginfo('__init__ callback happened.')   
-        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target2'], output_keys = ['t2_data'])
+        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target1', 'target2'], output_keys = ['t2_data'])
         
   
     def on_enter(self, userdata):
@@ -32,15 +33,18 @@ class ReadT2(EventState):
         self.listener = tf.TransformListener()  
         try:
             if 'target2' in userdata:
-                self.target_frame = userdata.target2
+                self.target_frame1 = userdata.target1
+                self.target_frame2 = userdata.target2
             else:
-                raise ValueError('Target frame should be specified in userdata as \'target2\'!')
+                raise ValueError('Target frame should be specified in userdata as \'target2\' and \'target1\'!')
         except Exception as e:
             Logger.loginfo('Targer frame not in Pose() structure')
         
     def execute(self, userdata):
         try:
-            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.target_frame, rospy.Time(0))
+            #self.listener.waitForTransform("target1", "target2", rospy.Time.now(), rospy.Duration(4.0))
+            (trans, rot) = self.listener.lookupTransform(self.target_frame1, self.target_frame2, rospy.Time(0))
+            Logger.loginfo("target1: {}".format(userdata.target1))
             Logger.loginfo("target2: {}".format(userdata.target2))
             Logger.loginfo("trans: {}".format(trans))
             Logger.loginfo("rot: {}".format(rot))
