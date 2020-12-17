@@ -16,8 +16,8 @@ class ReadT2(EventState):
 
     #< t2_data  Pose()              Read a frame from TF
 
-    ># target2  userdata.target2    Transform this frame
-    ># target1  userdata.target1
+    ># target2_frame  userdata.target2_frame    Transform this frame
+    ># source_frame  userdata.target1
 
     <= continue                     Written successfully
     <= failed                       Failed
@@ -25,16 +25,16 @@ class ReadT2(EventState):
 
     def __init__(self):
         rospy.loginfo('__init__ callback happened.')   
-        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target1', 'target2'], output_keys = ['t2_data'])
+        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target2_frame', 'source_frame'], output_keys = ['t2_data'])
         
   
     def on_enter(self, userdata):
         Logger.loginfo("Started reading TF (CartLin)...")
         self.listener = tf.TransformListener()  
         try:
-            if 'target2' in userdata:
-                self.target_frame1 = userdata.target1
-                self.target_frame2 = userdata.target2
+            if 'target2_frame' in userdata:
+                self.target2_frame = userdata.target2_frame
+                self.source_frame = userdata.source_frame
             else:
                 raise ValueError('Target frame should be specified in userdata as \'target2\' and \'target1\'!')
         except Exception as e:
@@ -42,10 +42,10 @@ class ReadT2(EventState):
         
     def execute(self, userdata):
         try:
-            #self.listener.waitForTransform(userdata.target1, userdata.target2, rospy.Time.now(), rospy.Duration(4.0))
-            (trans, rot) = self.listener.lookupTransform(self.target_frame1, self.target_frame2, rospy.Time(0))
-            Logger.loginfo("target1: {}".format(userdata.target1))
-            Logger.loginfo("target2: {}".format(userdata.target2))
+            #self.listener.waitForTransform(userdata.target2_frame, userdata.source_frame, rospy.Time.now(), rospy.Duration(4.0))
+            (trans, rot) = self.listener.lookupTransform(self.target2_frame, self.source_frame, rospy.Time(0))
+            Logger.loginfo("target: {}".format(userdata.target2_frame))
+            Logger.loginfo("source: {}".format(userdata.source_frame))
             Logger.loginfo("trans: {}".format(trans))
             Logger.loginfo("rot: {}".format(rot))
         except (tf.LookupException, tf.ConnectivityException):
