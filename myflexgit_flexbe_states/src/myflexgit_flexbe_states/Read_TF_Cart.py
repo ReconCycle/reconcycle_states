@@ -49,7 +49,7 @@ class ReadT1(EventState):
         try:            
             #self.listener.waitForTransform(userdata.target1_frame, userdata.source_frame, rospy.Time.now(), rospy.Duration(4.0))
             # (trans, rot) = self.listener.lookupTransform(self.target1_frame, self.source_frame, rospy.Time(0))
-            (trans, rot) = self.listener.lookupTransform("target1", "world", rospy.Time(0))
+            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.source_frame, rospy.Time(0))
             Logger.loginfo("target: {}".format(self.target_frame))
             Logger.loginfo("source: {}".format(self.source_frame))
             Logger.loginfo("trans: {}".format(trans))
