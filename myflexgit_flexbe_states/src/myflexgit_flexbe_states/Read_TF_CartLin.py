@@ -12,40 +12,46 @@ class ReadT2(EventState):
     
     '''
     Implements a state that reads TF data
-    [...]       
+    [...]     
 
-    #< t2_data  Pose()              Read a frame from TF
+    -- target_frame  string         Transform to this frame
+    -- source_frame  string         Transform from this frame  
 
-    ># target2_frame  userdata.target2_frame    Transform this frame
-    ># source_frame  userdata.target1
+    #< t2_data  Pose()              Read a frame from TF    
 
     <= continue                     Written successfully
     <= failed                       Failed
     '''
 
-    def __init__(self):
+    def __init__(self, target_frame, source_frame):
         rospy.loginfo('__init__ callback happened.')   
-        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], input_keys =['target2_frame', 'source_frame'], output_keys = ['t2_data'])
+        super(ReadT2, self).__init__(outcomes = ['continue', 'failed'], output_keys = ['t2_data'])
         
+         # Initialize the TF listener
+        self.listener = tf.TransformListener()  
+
+        # Copy parameters
+        self.target_frame = target_frame
+        self.source_frame = source_frame
   
     def on_enter(self, userdata):
         Logger.loginfo("Started reading TF (CartLin)...")
-        self.listener = tf.TransformListener()  
+        
         try:
-            if 'target2_frame' in userdata:
-                self.target2_frame = userdata.target2_frame
-                self.source_frame = userdata.source_frame
+            if self.target_frame and self.source_frame:
+               Logger.loginfo("Recived target and source data... ")
             else:
-                raise ValueError('Target frame should be specified in userdata as \'target2\' and \'target1\'!')
+                raise ValueError('No target and source data!')
         except Exception as e:
-            Logger.loginfo('Targer frame not in Pose() structure')
+            Logger.loginfo('Target or source frame not in Pose() structure!')
+            return 'failed'
         
     def execute(self, userdata):
         try:
             #self.listener.waitForTransform(userdata.target2_frame, userdata.source_frame, rospy.Time.now(), rospy.Duration(4.0))
-            (trans, rot) = self.listener.lookupTransform(self.target2_frame, self.source_frame, rospy.Time(0))
-            Logger.loginfo("target: {}".format(userdata.target2_frame))
-            Logger.loginfo("source: {}".format(userdata.source_frame))
+            (trans, rot) = self.listener.lookupTransform(self.target_frame, self.source_frame, rospy.Time(0))
+            Logger.loginfo("target: {}".format(self.target_frame))
+            Logger.loginfo("source: {}".format(self.source_frame))
             Logger.loginfo("trans: {}".format(trans))
             Logger.loginfo("rot: {}".format(rot))
         except (tf.LookupException, tf.ConnectivityException):
