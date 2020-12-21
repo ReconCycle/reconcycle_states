@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="FlexBEFULL">
+
+	<executable package_path="myflexgit_flexbe_behaviors.flexbefull_sm" class="FlexBEFULLSM" />
+	<tagstring>MongoDB, TF, actionlib</tagstring>
+	<author>Matej</author>
+	<date>Thu Dec 17 2020</date>
+	<description>
+		Full behavior with states.
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>
