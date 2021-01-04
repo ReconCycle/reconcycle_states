@@ -10,6 +10,7 @@
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from myflexgit_flexbe_states.CallAction_TF_Cart import CallT1
 from myflexgit_flexbe_states.CallAction_TF_CartLin import CallT2
+from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
 from myflexgit_flexbe_states.Read_TF_Cart import ReadT1
 from myflexgit_flexbe_states.Read_TF_CartLin import ReadT2
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
@@ -52,7 +53,10 @@ class FlexBEFULLSM(Behavior):
 		target1 = "target1"
 		target2 = "target2"
 		world = "world"
-		# x:867 y:627, x:130 y:365
+		poistions = [0, 1, 0, 1, 0, 1, 1]
+		speed = 2
+		timestep = 0.1
+		# x:723 y:656, x:130 y:365
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.entry_data = []
 		_state_machine.userdata.entry_name = 'matej'
@@ -83,6 +87,13 @@ class FlexBEFULLSM(Behavior):
 										transitions={'continue': 'ReadTFCartLin', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'t1_data': 't1_data', 't1_out': 't1_out'})
+
+			# x:842 y:599
+			OperatableStateMachine.add('CallJointMinJerk',
+										CallJointMinJerk(positions=poistions, speed=speed, timestep=timestep),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'minjerk_out': 'minjerk_out'})
 
 			# x:586 y:59
 			OperatableStateMachine.add('CallJointTrapServer',
@@ -115,7 +126,7 @@ class FlexBEFULLSM(Behavior):
 			# x:838 y:482
 			OperatableStateMachine.add('CallCartLinServer',
 										CallT2(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'CallJointMinJerk', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'t2_data': 't2_data', 't2_out': 't2_out'})
 
