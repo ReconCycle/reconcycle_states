@@ -39,8 +39,10 @@ Python files represent FlexBe states which are joined together into one behavior
 
 - [Read_TF_Cart](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_Cart.py)
 	- Added target1: lookupTransform()
-	- input_keys =['target1']
 	- output_keys = ['t1_data']
+	- input parameters: 
+		- target_frame -> string
+    	- source_frame -> string
 
 - [CallAction_TF_Cart](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/CallAction_TF_Cart.py)
 	- Added call to cart_trap_vel_action_server
@@ -49,8 +51,10 @@ Python files represent FlexBe states which are joined together into one behavior
 
 - [Read_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_CartLin.py)
 	- Added target2: lookupTransform()
-	- input_keys =['target2']
 	- output_keys = ['t2_data']
+	- input parameters:
+		- target_frame -> string
+    	- source_frame -> string
 
 - [CallAction_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/CallAction_TF_CartLin.py)
 	- Added call to cart_lin_task_action_server
@@ -59,11 +63,12 @@ Python files represent FlexBe states which are joined together into one behavior
 
 - [Call_joint_min_jerk_action_server](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Call_joint_min_jerk_action_server.py)
 	- Added call to joint_min_jerk_action_server
-	- parameters:
+	- output_keys = ['minjerk_out']
+	- input parameters:
 		- positions -> list data of 7 joints. Example: [0, 1, 0, 1, 0, 0, 1]
 		- speed -> float 
 		- timestep - > float
-		- output_keys = ['minjerk_out']
+	
 
 # Behaviors
 Behaviors are modeled as hierarchical state machines where states correspond to active actions and transitions describe the reaction to outcomes.
