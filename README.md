@@ -1,39 +1,77 @@
 # Reconcycle states
 
-FlexBe states for the ReconCycle project
+This repository includes python FlexBe states for the ReconCycle project
 
-## Table of contents
+# Table of contents
 
-* [Python files]()
-
-
-### Python files  
-#### write_to_mongodb.py
-- Added write_to_mongodb. Input keys: JointState() data construction (entry_data), _id to write to (entry_name).
-- When tests are done change the following:
-
-- entry_data = JointState(position=[1,2,3,4,5,6,7], name=['a','b','c','d', 'e', 'f', 'g']) to
-  entry_data = userdata.entry_data
-
-#### read_from_mongodb.py
-- Added read_from_mongodb. Input keys: _id to read from DB (entry_name). Output keys: JointState() data construction (joints_data).
-
-#### call_joint_trap_vel_action_server.py
-- Added call_joint_trap_vel_action_server. Input keys: JointState() data construction (joints_data). Output keys: JointState()
-data construction (joint_values)
-
-- When tests with dummy interface are done change the following @ self._topic:
-'panda_2/joint_trap_vel_action_server' to 'joint_trap_vel_action_server'
-
-#### Read_TF_Cart.py
-- Added target1: lookupTransform():  input_keys =['target1'], output_keys = ['t1_data']
-
-#### CallAction_TF_Cart.py
-- Added cart_trap_vel_action_server: input_keys = ['t1_data'], output_keys = ['t1_out']
+- [ReconCycle states](#reconcycle-states)
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Python files](#python-files)
+	- [ROS 1](#ros-1)
+- [Behaviors](#behaviors)
+- [Examples](#examples)
 
 
-#### Read_TF_CartLin.py
-- Added target2: lookupTransform(): input_keys =['target2'], output_keys = ['t2_data']
+# Introduction
+[FlexBE](http://wiki.ros.org/flexbe/) helps us to create complex robot behaviors without the need for manually coding them.
+States define what should be done by a behavior. They are grouped as statemachines, defining the control flow when the behavior is executed. 
+Therefore, each state declares a set of outcomes which represent possible results of execution
 
-#### CallAction_TF_CartLin.py
-- Added cart_lin_task_action_server: input_keys = ['t2_data'], output_keys = ['t2_out']
+This repository includes FlexBe states [python files](#python-files)
+
+
+# Python files
+Python files represent FlexBe states which are joined together into one behavior.
+
+## ROS 1  
+- [write_to_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/write_to_mongodb.py)
+	- Write_to_mongodb input keys: JointState() data construction as userdata.entry_data,
+	_id to write to in mongodb (entry_name).
+ 
+- [read_from_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/read_from_mongodb.py)
+	- input keys: _id to read from in mongodb (entry_name).
+	- output keys: JointState() data construction (joints_data).
+
+- [call_joint_trap_vel_action_server](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/call_joint_trap_vel_action_server.py)
+	- Input keys: JointState() data construction (joints_data).
+	- Output keys: JointState() data construction (joint_values)
+
+- [Read_TF_Cart](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_Cart.py)
+	- Added target1: lookupTransform()
+	- input_keys =['target1']
+	- output_keys = ['t1_data']
+
+- [CallAction_TF_Cart](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/CallAction_TF_Cart.py)
+	- Added call to cart_trap_vel_action_server
+	- input_keys = ['t1_data']
+	- output_keys = ['t1_out']
+
+- [Read_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_CartLin.py)
+	- Added target2: lookupTransform()
+	- input_keys =['target2']
+	- output_keys = ['t2_data']
+
+- [CallAction_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/CallAction_TF_CartLin.py)
+	- Added call to cart_lin_task_action_server
+	- input_keys = ['t2_data']
+	- output_keys = ['t2_out']
+
+- [Call_joint_min_jerk_action_server](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Call_joint_min_jerk_action_server.py)
+	- Added call to joint_min_jerk_action_server
+	- parameters:
+		- positions -> list data of 7 joints. Example: [0, 1, 0, 1, 0, 0, 1]
+		- speed -> float 
+		- timestep - > float
+		- output_keys = ['minjerk_out']
+
+# Behaviors
+Behaviors are modeled as hierarchical state machines where states correspond to active actions and transitions describe the reaction to outcomes.
+
+A [behavior file](/myflexgit_flexbe_behaviors/src/myflexgit_flexbe_behaviors/flexbefull_sm.py) is constructed from [python files](#python-files). The file is run by FlexBe behavior engine.
+
+More information about FlexBe behavior engine is avaliable [here](https://github.com/team-vigir/flexbe_behavior_engine/blob/master/README.md).
+
+
+# Examples
+An example of states inside behavior model can be seen ![here](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe Statemachine.png).
