@@ -74,4 +74,4 @@ More information about FlexBe behavior engine is avaliable [here](https://github
 
 
 # Examples
-An example of states inside behavior model can be seen ![here](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe Statemachine.png).
+An example of states inside behavior model can be seen ![here](https://github.com/ReconCycle/reconcycle_states/blob/main/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe%20Statemachine.png).
