@@ -26,8 +26,8 @@ Python files represent FlexBe states which are joined together into one behavior
 
 ## ROS 1  
 - [write_to_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/write_to_mongodb.py)
-	- Write_to_mongodb input keys: JointState() data construction as userdata.entry_data,
-	_id to write to in mongodb (entry_name).
+	- input keys: JointState() data construction (entry_data).
+	- _id to write to in mongodb (entry_name).
  
 - [read_from_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/read_from_mongodb.py)
 	- input keys: _id to read from in mongodb (entry_name).
@@ -65,9 +65,9 @@ Python files represent FlexBe states which are joined together into one behavior
 	- Added call to joint_min_jerk_action_server
 	- output_keys = ['minjerk_out']
 	- input parameters:
-		- positions -> list data of 7 joints. Example: [0, 1, 0, 1, 0, 0, 1]
-		- speed -> float 
-		- timestep - > float
+		- goal_joint_pos -> list data of 7 joints. Example: [0, 1, 0, 1, 0, 0, 1]
+		- motion_duration -> float 
+		- motion_timestep -> float
 	
 
 # Behaviors
