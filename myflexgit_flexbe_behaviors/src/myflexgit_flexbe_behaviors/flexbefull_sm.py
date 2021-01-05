@@ -53,9 +53,9 @@ class FlexBEFULLSM(Behavior):
 		target1 = "target1"
 		target2 = "target2"
 		world = "world"
-		poistions = [0, 1, 0, 1, 0, 1, 1]
-		speed = 2
-		timestep = 0.1
+		goal_joint_pos = [0, 1, 0, 1, 0, 1, 1]
+		motion_duration = 2
+		motion_timestep = 0.1
 		# x:723 y:656, x:130 y:365
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.entry_data = []
@@ -90,7 +90,7 @@ class FlexBEFULLSM(Behavior):
 
 			# x:842 y:599
 			OperatableStateMachine.add('CallJointMinJerk',
-										CallJointMinJerk(positions=poistions, speed=speed, timestep=timestep),
+										CallJointMinJerk(goal_joint_pos=goal_joint_pos, motion_duration=motion_duration, motion_timestep=motion_timestep),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'minjerk_out': 'minjerk_out'})
