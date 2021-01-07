@@ -36,7 +36,7 @@ class CallJointMinJerk(EventState):
         self._timestep = motion_timestep
 
     def execute(self, userdata):
-        result = ...
+        result = []
 
         try:
             result = self._client.get_result()
