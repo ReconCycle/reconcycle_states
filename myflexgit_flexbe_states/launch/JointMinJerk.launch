@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<include file="$(find flexbe_onboard)/launch/behavior_onboard.launch" />
+
+<arg name="jointminjerkclient" default="JointMinJerkClient" />
+<node name="behavior_disrun" pkg="flexbe_widget" type="be_launcher" output="screen" args="-b '$(arg jointminjerkclient)'" />
+
+
+</launch>
