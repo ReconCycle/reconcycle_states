@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 import actionlib
-import time
 import rospy
 from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
-
 
 class CallJointMinJerk(EventState):
 
@@ -51,29 +49,18 @@ class CallJointMinJerk(EventState):
         return 'continue'
             
     def on_enter(self, userdata):
-        param_index = 1
-        while rospy.has_param("pos"+str(param_index)):
-            testdata = rospy.get_param("pos"+str(param_index))
-            #Logger.loginfo("pos{}: {}".format(param_index, testdata))
-            param_index = param_index + 1
-            # input [float, float, ...] of 7 joints is used for self._position.
-            goal = robot_module_msgs.msg.JointMinJerkGoal(testdata, self._duration, self._timestep)
-            Logger.loginfo("Starting sending goal...")
+        # input [float, float, ...] of 7 joints is used for self._position.
+        goal = robot_module_msgs.msg.JointMinJerkGoal(self._position, self._duration, self._timestep)
+        Logger.loginfo("Starting sending goal...")
 
-            try:
-                Logger.loginfo("Goal sent: {}".format(str(testdata)))
-                self._client.send_goal(goal)
-                while self._client.get_result() == None:
-                    Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
-                    time.sleep(0.2)
-                result = self._client.wait_for_result()
-                userdata.minjerk_out = result
-                Logger.loginfo("Action Server reply: \n {}".format(str(userdata.minjerk_out)))
-            except Exception as e:
-                # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
-                # Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
-                Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
-                self._error = True
+        try:
+            self._client.send_goal_and_wait(goal)
+            Logger.loginfo("Goal sent: {}".format(str(self._position)))
+        except Exception as e:
+			# Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
+			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
+            Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
+            self._error = True
 
     def on_exit(self, userdata):
         if not self._client.get_result():
@@ -81,3 +68,4 @@ class CallJointMinJerk(EventState):
             Logger.loginfo('Cancelled active action goal. No reply data.')
         Logger.loginfo('Finished sending goal to JointMinJerkGoal.')
         return 'continue'
+        
