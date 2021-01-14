@@ -8,7 +8,7 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from myflexgit_flexbe_states.Read_TF_Cart import ReadT1
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -16,20 +16,22 @@ from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointM
 
 
 '''
-Created on Mon Jan 04 2021
+Created on Mon Dec 14 2020
 @author: Matej
 '''
-class JointMinJerkClientSM(Behavior):
+class READ_TFSM(Behavior):
 	'''
-	Calling joint_min_jerk action server.
+	None
 	'''
 
 
 	def __init__(self):
-		super(JointMinJerkClientSM, self).__init__()
-		self.name = 'JointMinJerkClient'
+		super(READ_TFSM, self).__init__()
+		self.name = 'READ_TF'
 
 		# parameters of this behavior
+		self.add_parameter('target1', 'target1')
+		self.add_parameter('world', 'world')
 
 		# references to used behaviors
 
@@ -43,11 +45,10 @@ class JointMinJerkClientSM(Behavior):
 
 
 	def create(self):
-		goal_joint_pos = [-0.04, -0.20, 0.20, -2.00, 0.018, 1.83, 1]
-		motion_duration = 2
-		motion_timestep = 0.01
 		# x:30 y:365, x:130 y:365
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
+		_state_machine.userdata.rot = []
+		_state_machine.userdata.trans = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -56,12 +57,12 @@ class JointMinJerkClientSM(Behavior):
 
 
 		with _state_machine:
-			# x:122 y:89
-			OperatableStateMachine.add('CallJointMinJerk',
-										CallJointMinJerk(goal_joint_pos=goal_joint_pos, motion_duration=motion_duration, motion_timestep=motion_timestep),
+			# x:45 y:106
+			OperatableStateMachine.add('read',
+										ReadT1(target_frame="target1", source_frame="world"),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'minjerk_out': 'minjerk_out'})
+										remapping={'t1_data': 't1_data'})
 
 
 		return _state_machine

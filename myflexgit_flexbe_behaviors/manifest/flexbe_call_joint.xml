@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="FlexBe_call_Joint">
+
+	<executable package_path="myflexgit_flexbe_behaviors.flexbe_call_joint_sm" class="FlexBe_call_JointSM" />
+	<tagstring>FlexBe, Test, JointState()</tagstring>
+	<author>Matej</author>
+	<date>Fri Dec 11 2020</date>
+	<description>
+		Caling JointTrapVelGoal
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

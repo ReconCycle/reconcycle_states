@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="CallTarget2">
+
+	<executable package_path="myflexgit_flexbe_behaviors.calltarget2_sm" class="CallTarget2SM" />
+	<tagstring>/</tagstring>
+	<author>Matej</author>
+	<date>Mon Dec 14 2020</date>
+	<description>
+		CallAction_TF_CartLin.py
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

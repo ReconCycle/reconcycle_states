@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="FlexbeReadTF1">
+
+	<executable package_path="myflexgit_flexbe_behaviors.flexbereadtf1_sm" class="FlexbeReadTF1SM" />
+	<tagstring>Cartesian, TF</tagstring>
+	<author>Matej</author>
+	<date>Thu Dec 17 2020</date>
+	<description>
+		Test for reading TF Cart
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

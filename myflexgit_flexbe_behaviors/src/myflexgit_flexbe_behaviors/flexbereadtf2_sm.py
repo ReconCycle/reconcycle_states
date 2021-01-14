@@ -8,7 +8,7 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from myflexgit_flexbe_states.Read_TF_Cart import ReadT1
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -16,18 +16,18 @@ from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointM
 
 
 '''
-Created on Mon Jan 04 2021
+Created on Thu Dec 17 2020
 @author: Matej
 '''
-class JointMinJerkClientSM(Behavior):
+class FlexbeReadTF2SM(Behavior):
 	'''
-	Calling joint_min_jerk action server.
+	Test for reading TF Cart
 	'''
 
 
 	def __init__(self):
-		super(JointMinJerkClientSM, self).__init__()
-		self.name = 'JointMinJerkClient'
+		super(FlexbeReadTF2SM, self).__init__()
+		self.name = 'FlexbeReadTF2'
 
 		# parameters of this behavior
 
@@ -43,9 +43,8 @@ class JointMinJerkClientSM(Behavior):
 
 
 	def create(self):
-		goal_joint_pos = [-0.04, -0.20, 0.20, -2.00, 0.018, 1.83, 1]
-		motion_duration = 2
-		motion_timestep = 0.01
+		target = "target2"
+		world = "world"
 		# x:30 y:365, x:130 y:365
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 
@@ -56,12 +55,12 @@ class JointMinJerkClientSM(Behavior):
 
 
 		with _state_machine:
-			# x:122 y:89
-			OperatableStateMachine.add('CallJointMinJerk',
-										CallJointMinJerk(goal_joint_pos=goal_joint_pos, motion_duration=motion_duration, motion_timestep=motion_timestep),
+			# x:55 y:72
+			OperatableStateMachine.add('ReadTFCart',
+										ReadT1(target_frame=target, source_frame=world),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'minjerk_out': 'minjerk_out'})
+										remapping={'t1_data': 't1_data'})
 
 
 		return _state_machine
