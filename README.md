@@ -83,8 +83,8 @@ In order for examples to work, a pre-build panda_dockers has to be build and run
 https://github.com/abr-ijs/panda_dockers
 
 Example commands for a joint_min_jerk_action_client:
-	- inside folder ros1_flexbe:
-		- docker build --no-cache -t reconcycle/states:states .
-		- docker run -it --name rcstate --network panda-simulator-gzweb_ros -e ROS_MASTER_URI=http://rosmaster:11311 reconcycle/states:states roslaunch myflexgit_flexbe_behaviors JointMinJerk.launch
+- inside folder ros1_flexbe:
+	- docker build --no-cache -t reconcycle/states:states .
+	- docker run -it --name rcstate --network panda-simulator-gzweb_ros -e ROS_MASTER_URI=http://rosmaster:11311 reconcycle/states:states roslaunch myflexgit_flexbe_behaviors JointMinJerk.launch
 		
 An example of states inside behavior model. ![here](https://github.com/ReconCycle/reconcycle_states/blob/main/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe%20Statemachine.png).
