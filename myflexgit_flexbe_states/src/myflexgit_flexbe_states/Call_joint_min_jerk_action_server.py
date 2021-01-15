@@ -12,10 +12,10 @@ class CallJointMinJerk(EventState):
     Calls JointMinJerkAction server @ '/joint_min_jerk_action_server' topic
     [...]
     
-    -- motion_duration		float		Speed data
-    -- motion_timestep	        float		Timestamp data  
-    ># goal_joint_pos   	string []	Position data input [float, float, ...] of 7 joints
-    #< minjerk_out	        sting []  	minjerk action server reply userdata output
+    -- motion_duration  float		Speed data
+    -- motion_timestep  float		Timestamp data  
+    ># goal_joint_pos   string []	Position data input [float, float, ...] of 7 joints
+    #< minjerk_out      sting []  	minjerk action server reply userdata output
     <= continue                 Written successfully
     <= failed                  	Failed
     '''
