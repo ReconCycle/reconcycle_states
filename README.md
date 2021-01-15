@@ -10,7 +10,7 @@ This repository includes python FlexBe states for the ReconCycle project
 - [Python files](#python-files)
 	- [ROS 1](#ros-1)
 - [Behaviors example](#behaviors-example)
-- [How to](#how-to:-simulation-an-FlexBE-app)
+- [How to](#simulation-and-flexbe-app)
 
 
 # Introduction
@@ -78,7 +78,7 @@ A [behavior file](/myflexgit_flexbe_behaviors/src/myflexgit_flexbe_behaviors/fle
 More information about FlexBe behavior engine is avaliable [here](https://github.com/team-vigir/flexbe_behavior_engine/blob/master/README.md).
 
 
-# How to: simulation an FlexBE app
+# Simulation and FlexBE app
 In order for examples to work, a pre-build panda_dockers has to be build and run:  
 - https://github.com/abr-ijs/panda_dockers
 - https://github.com/ReconCycle/sim_controllers_interface
