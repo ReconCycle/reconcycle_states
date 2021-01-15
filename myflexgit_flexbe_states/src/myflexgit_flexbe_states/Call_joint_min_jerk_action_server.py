@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 import actionlib
-import time
 import rospy
 from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
-
+import time
 
 class CallJointMinJerk(EventState):
 
@@ -13,27 +12,23 @@ class CallJointMinJerk(EventState):
     Calls JointMinJerkAction server @ '/joint_min_jerk_action_server' topic
     [...]
     
-    -- goal_joint_pos   	string []	Position data input [float, float, ...] of 7 joints
     -- motion_duration		float		Speed data
     -- motion_timestep	    float		Timestamp data
-    #< minjerk_out	[]  		minjerk action server reply userdata output
+	># goal_joint_pos   	string []	Position data input [float, float, ...] of 7 joints
+    #< minjerk_out	        sting []  	minjerk action server reply userdata output
     <= continue                 Written successfully
     <= failed                  	Failed
     '''
 
-    def __init__(self, goal_joint_pos, motion_duration, motion_timestep):
-        super(CallJointMinJerk, self).__init__(outcomes = ['continue', 'failed'], output_keys = ['minjerk_out'])
+    def __init__(self, motion_duration, motion_timestep):
+        super(CallJointMinJerk, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_joint_pos'], output_keys = ['minjerk_out'])
 
-        # replace 'panda_2/joint_min_jerk_action_server' from dummies with 'joint_min_jerk_action_server'
-        #self._topic = 'panda_2/joint_min_jerk_action_server'
-        #self._topic = 'joint_min_jerk_action_server'
+        # actionlib client @joint_min_jerk_action_server
         self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
 
-        #self._client.wait_for_server()
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointMinJerkAction}) # pass required clients as dict (topic: type)
         # JointMinJerkAction
         # Input parameters of robot_module_msgs.msg
-        self._position = goal_joint_pos #[-0.04, -0.20, 0.20, -2.00, 0.018, 1.83, 1]
         self._duration = motion_duration
         self._timestep = motion_timestep
 
@@ -51,29 +46,22 @@ class CallJointMinJerk(EventState):
         return 'continue'
             
     def on_enter(self, userdata):
-        param_index = 1
-        while rospy.has_param("pos"+str(param_index)):
-            testdata = rospy.get_param("pos"+str(param_index))
-            #Logger.loginfo("pos{}: {}".format(param_index, testdata))
-            param_index = param_index + 1
-            # input [float, float, ...] of 7 joints is used for self._position.
-            goal = robot_module_msgs.msg.JointMinJerkGoal(testdata, self._duration, self._timestep)
-            Logger.loginfo("Starting sending goal...")
+        # input [float, float, ...] of 7 joints is used for userdata.goal_joint_pos.
+        goal = robot_module_msgs.msg.JointMinJerkGoal(userdata.goal_joint_pos, self._duration, self._timestep)
+        Logger.loginfo("Starting sending goal...")
 
-            try:
-                Logger.loginfo("Goal sent: {}".format(str(testdata)))
-                self._client.send_goal(goal)
-                while self._client.get_result() == None:
-                    Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
-                    time.sleep(0.2)
-                result = self._client.wait_for_result()
-                userdata.minjerk_out = result
-                Logger.loginfo("Action Server reply: \n {}".format(str(userdata.minjerk_out)))
-            except Exception as e:
-                # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
-                # Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
-                Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
-                self._error = True
+        try:
+            Logger.loginfo("Goal sent: {}".format(str(userdata.goal_joint_pos)))
+            self._client.send_goal(goal)
+            while self._client.get_result() == None:
+                Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
+                time.sleep(0.2)
+
+        except Exception as e:
+            # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
+			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
+            Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
+            self._error = True
 
     def on_exit(self, userdata):
         if not self._client.get_result():
