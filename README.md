@@ -9,8 +9,8 @@ This repository includes python FlexBe states for the ReconCycle project
 - [Introduction](#introduction)
 - [Python files](#python-files)
 	- [ROS 1](#ros-1)
-- [Behaviors](#behaviors)
-- [Examples](#examples)
+- [Behaviors example](#behaviors-example)
+- [How to](#how-to:-simulation-an-FlexBE-app)
 
 
 # Introduction
@@ -64,13 +64,13 @@ Python files represent FlexBe states which are joined together into one behavior
 - [Call_joint_min_jerk_action_server](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Call_joint_min_jerk_action_server.py)
 	- Added call to joint_min_jerk_action_server
 	- output_keys = ['minjerk_out']
+	- input_keys = ['goal_joint_pos']
 	- input parameters:
-		- goal_joint_pos -> list data of 7 joints. Example: [0, 1, 0, 1, 0, 0, 1]
 		- motion_duration -> float 
 		- motion_timestep -> float
 	
 
-# Behaviors
+# Behaviors example
 Behaviors are modeled as hierarchical state machines where states correspond to active actions and transitions describe the reaction to outcomes.
 
 A [behavior file](/myflexgit_flexbe_behaviors/src/myflexgit_flexbe_behaviors/flexbefull_sm.py) is constructed from [python files](#python-files). The file is run by FlexBe behavior engine.
@@ -78,14 +78,24 @@ A [behavior file](/myflexgit_flexbe_behaviors/src/myflexgit_flexbe_behaviors/fle
 More information about FlexBe behavior engine is avaliable [here](https://github.com/team-vigir/flexbe_behavior_engine/blob/master/README.md).
 
 
-# Examples
+# How to: simulation an FlexBE app
 In order for examples to work, a pre-build panda_dockers has to be build and run:  
-https://github.com/abr-ijs/panda_dockers
+- https://github.com/abr-ijs/panda_dockers
+- https://github.com/ReconCycle/sim_controllers_interface
+- https://github.com/ReconCycle/docker_examples/tree/master/ros1_devel
+- FlexBE Dockerfile
+	- https://github.com/ReconCycle/docker_examples/tree/master/ros1_flexbee
 
 Example commands for a joint_min_jerk_action_client:
-Dockerfile is not present at this moment!
-- inside folder ros1_flexbe:
+- Create and image from FlexBE Dockerfile:
 	- docker build --no-cache -t reconcycle/states:states .
-	- docker run -it --name rcstate --network panda-simulator-gzweb_ros -e ROS_MASTER_URI=http://rosmaster:11311 reconcycle/states:states roslaunch myflexgit_flexbe_behaviors JointMinJerk.launch
+- Run FlexBE app(panda_dockers must run before running with this configuration):
+	- docker run -it --name rcstate --network panda-simulator-gzweb_ros -p 9092:9092 -e ROS_MASTER_URI=http://rosmaster:11311 reconcycle/states:states roslaunch flexbe_app flexbe_full.launch
+- Run just FlexBE app without gazebo simulator:
+	- docker run -it --name rcstate -p 9092:9092 -e reconcycle/states:states roslaunch flexbe_app flexbe_full.launch
+
+- When panda_dockers is running and action server is running (sim_controllers_interface) GUI can be access via browser:
+	- FlexBE app @ http://localhost:9092/vnc.html
+	- GzWeb app @ http://localhost
 		
 An example of states inside behavior model. ![here](https://github.com/ReconCycle/reconcycle_states/blob/main/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe%20Statemachine.png).
