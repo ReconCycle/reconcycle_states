@@ -2,7 +2,7 @@
 
 import rospy
 import mongodb_store_msgs.srv as dc_srv
-import mongodb_store.util as dc_util
+#import mongodb_store.util as dc_util 
 from mongodb_store.message_store import MessageStoreProxy
 from flexbe_core import EventState, Logger
 from sensor_msgs.msg import JointState
