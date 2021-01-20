@@ -44,9 +44,9 @@ class WriteToMongo(EventState):
         
         try: 
             if self.msg_store.query_named(entry_name,pos.position):
-                client= self.msg_store.update_named(entry_name,pos.position)
+                client= self.msg_store.update_named(entry_name, pos)
             else:
-                client = self.msg_store.insert_named(entry_name, pos.position)
+                client = self.msg_store.insert_named(entry_name, pos)
                    
             Logger.loginfo("Written successfully!")
 
