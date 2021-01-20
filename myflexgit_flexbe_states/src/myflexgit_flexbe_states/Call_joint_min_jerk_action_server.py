@@ -6,6 +6,7 @@ from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
 import time
 
+
 class CallJointMinJerk(EventState):
 
     '''
@@ -53,12 +54,9 @@ class CallJointMinJerk(EventState):
         try:
             Logger.loginfo("Goal sent: {}".format(str(userdata.goal_joint_pos)))
             self._client.send_goal(goal)
-            start_time = time.perf_counter()
             while self._client.get_result() == None:
                 Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
                 time.sleep(0.2)
-                if time.perf_counter() - start_time > 12:
-                    break
 
         except Exception as e:
             # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
