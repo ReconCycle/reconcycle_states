@@ -87,15 +87,18 @@ In order for examples to work, a pre-build panda_dockers has to be build and run
 	- https://github.com/ReconCycle/docker_examples/tree/master/ros1_flexbee
 
 Example commands for a joint_min_jerk_action_client:
-- Create and image from FlexBE Dockerfile:
+- Create and image from FlexBE Dockerfile (FlexBE Dockerfile):
 	- docker build --no-cache -t reconcycle/states:states .
-- Run FlexBE app(panda_dockers must run before running with this configuration):
+- Run FlexBE app(panda_dockers nad sim_controllers_interface must run before running with this configuration):
 	- docker run -it --name rcstate --network panda-simulator-gzweb_ros -p 9092:9092 -e ROS_MASTER_URI=http://rosmaster:11311 reconcycle/states:states roslaunch flexbe_app flexbe_full.launch
 - Run just FlexBE app without gazebo simulator:
 	- docker run -it --name rcstate -p 9092:9092 -e reconcycle/states:states roslaunch flexbe_app flexbe_full.launch
 
-- When panda_dockers is running and action server is running (sim_controllers_interface) GUI can be access via browser:
-	- FlexBE app @ http://localhost:9092/vnc.html
-	- GzWeb app @ http://localhost
+- When panda_dockers is running and action server is running (sim_controllers_interface), GUI can be access via browser:
+	- FlexBE app @ http://localhost:9092/vnc.html in browser
+	- GzWeb app @ http://localhost in browser
+
+- For simple move panda in Gzweb simulator a test MoveJointMinJerkExample is provided. The behavior is available under Load Behavior in FlexBe app GUI.
+Keep in mind that all the above docker files must be build and run before FlexBE container is created.
 		
 An example of states inside behavior model. ![here](https://github.com/ReconCycle/reconcycle_states/blob/main/myflexgit_flexbe_states/src/myflexgit_flexbe_states/FlexBe%20Statemachine.png).
