@@ -39,12 +39,14 @@ class WriteToMongo(EventState):
 
         # Write to MongoDB        
         Logger.loginfo("Writing to mongoDB _id: {}...".format(entry_name))
+
+        pos = JointState(position=entry_data)
         
         try: 
-            if self.msg_store.query_named(entry_name,entry_data._type):
-                client= self.msg_store.update_named(entry_name,JointState._type)
+            if self.msg_store.query_named(entry_name,pos.position):
+                client= self.msg_store.update_named(entry_name,pos.position)
             else:
-                client = self.msg_store.insert_named(entry_name, JointState._type)
+                client = self.msg_store.insert_named(entry_name, pos.position)
                    
             Logger.loginfo("Written successfully!")
 

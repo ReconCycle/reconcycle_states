@@ -30,9 +30,9 @@ class ReadFromMongo(EventState):
         self.msg_store = MessageStoreProxy()
 
     def execute(self, userdata):
-
+        pos = JointState()
         try:
-            data_from_db = self.msg_store.query_named(userdata.entry_name, JointState._type)
+            data_from_db = self.msg_store.query_named(userdata.entry_name, pos.position)
 
             Logger.loginfo("Data read: \n {}".format(data_from_db))
 
