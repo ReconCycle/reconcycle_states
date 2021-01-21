@@ -42,7 +42,7 @@ class ReadFromMongo(EventState):
             self.reachable = False
             return 'failed'
 
-        userdata.joints_data = data_from_db
+        userdata.joints_data = data_from_db.position
         Logger.loginfo("Reading _id: {} from mongoDB: ... \n {}".format(userdata.entry_name, userdata.joints_data))      
         return 'continue'  
             
