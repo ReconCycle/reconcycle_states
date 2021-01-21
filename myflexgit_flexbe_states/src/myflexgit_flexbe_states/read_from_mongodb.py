@@ -32,7 +32,7 @@ class ReadFromMongo(EventState):
     def execute(self, userdata):
         pos = JointState()
         try:
-            data_from_db = self.msg_store.query_named(userdata.entry_name, pos.position)
+            data_from_db = self.msg_store.query_named(str(userdata.entry_name), pos.position)
 
             Logger.loginfo("Data read: \n {}".format(data_from_db))
 
