@@ -32,17 +32,17 @@ class ReadFromMongo(EventState):
     def execute(self, userdata):
         pos = JointState()
         try:
-            data_from_db = self.msg_store.query_named(str(userdata.entry_name), JointState._type)
+            data_from_db = self.msg_store.query_named(str(userdata.entry_name), JointState(position)._type)
 
             Logger.loginfo("Data read: \n {}".format(data_from_db))
-            Logger.loginfo("Position data: \n {}".format(data_from_db(position)))
+        
 
         except rospy.ServiceException as e:
             Logger.loginfo("MongoDB is not reachable...")
             self.reachable = False
             return 'failed'
 
-        userdata.joints_data = data_from_db(position)
+        userdata.joints_data = None #temp
         Logger.loginfo("Reading _id: {} from mongoDB: ... \n {}".format(userdata.entry_name, userdata.joints_data))      
         return 'continue'  
             
