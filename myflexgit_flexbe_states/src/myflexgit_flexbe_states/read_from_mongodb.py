@@ -36,7 +36,7 @@ class ReadFromMongo(EventState):
 
             tempdata = data_from_db[0]
             Logger.loginfo("Data read: \n {}".format(data_from_db))
-            Logger.loginfo("Temp data: \n {}".format(tempdata))        
+            Logger.loginfo("Temp data: \n {}".format(tempdata.position))        
 
         except rospy.ServiceException as e:
             Logger.loginfo("MongoDB is not reachable...")
