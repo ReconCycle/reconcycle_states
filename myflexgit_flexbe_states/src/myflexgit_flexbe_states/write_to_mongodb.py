@@ -37,7 +37,7 @@ class WriteToMongo(EventState):
         #---------------------------------------------------------------------------------------
 
         # Write to MongoDB        
-        Logger.loginfo("Writing to mongoDB _id: {}...".format(entry_name))
+        Logger.loginfo("Writing to mongoDB _id: {}...".format(userdata.entry_name))
 
         pos = JointState(position=entry_data)
         
