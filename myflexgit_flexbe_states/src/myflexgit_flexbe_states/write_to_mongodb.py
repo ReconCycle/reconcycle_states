@@ -42,7 +42,7 @@ class WriteToMongo(EventState):
         pos = JointState(position=entry_data)
         
         try: 
-            if self.msg_store.query_named(str(userdata.entry_name), JointState.position):
+            if self.msg_store.query(str(userdata.entry_name)) != []:
                 Logger.loginfo("Id {} already exists in DB...Updating data.".format(userdata.entry_name))
                 client= self.msg_store.update_named(str(userdata.entry_name), pos)
             else:
