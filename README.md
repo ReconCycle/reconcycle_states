@@ -26,15 +26,15 @@ Python files represent FlexBe states which are joined together into one behavior
 
 ## ROS 1  
 - [write_to_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/write_to_mongodb.py)
-	- input keys: JointState() data construction (entry_data).
-	- _id to write to in mongodb (entry_name).
+	- input keys: entry_data = [joint1_pos_data, ...., joint7_pos_data].
+	- _id to write to in mongodb (entry_name) e.q. entry_name="position1".
  
 - [read_from_mongodb](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/read_from_mongodb.py)
 	- input keys: _id to read from in mongodb (entry_name).
-	- output keys: JointState() data construction (joints_data).
+	- output keys: joints_data = [joints_position_data_read_from_mongodb].
 
 - [call_joint_trap_vel_action_server](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/call_joint_trap_vel_action_server.py)
-	- Input keys: JointState() data construction (joints_data).
+	- Input keys: JointState() data construction (joints_data = position).
 	- Output keys: JointState() data construction (joint_values)
 
 - [Read_TF_Cart](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_Cart.py)
