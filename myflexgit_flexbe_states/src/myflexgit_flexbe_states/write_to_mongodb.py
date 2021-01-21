@@ -43,10 +43,10 @@ class WriteToMongo(EventState):
         pos = JointState(position=entry_data)
         
         try: 
-            if self.msg_store.query_named(entry_name,JointState.position):
-                client= self.msg_store.update_named(entry_name, pos)
-            else:
-                client = self.msg_store.insert_named(entry_name, pos)
+            #if self.msg_store.query_named(entry_name,JointState.position):
+            #    client= self.msg_store.update_named(entry_name, pos)
+            #else:
+            client = self.msg_store.insert_named(str(userdata.entry_name), pos)
                    
             Logger.loginfo("Written successfully!")
 
