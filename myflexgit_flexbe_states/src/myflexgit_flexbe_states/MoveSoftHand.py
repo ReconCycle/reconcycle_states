@@ -4,9 +4,13 @@ import actionlib
 import rospy
 from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
+from trajectory_msgs.msg import JointTrajectory,JointTrajectoryPoint
 import time
 
-class CallJointMinJerk(EventState):
+
+
+
+class MoveSoftHand(EventState):
 
     '''
     Calls JointMinJerkAction server @ '/joint_min_jerk_action_server' topic
@@ -21,11 +25,11 @@ class CallJointMinJerk(EventState):
     '''
 
     def __init__(self, motion_duration, motion_timestep):
-        super(CallJointMinJerk, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_joint_pos'], output_keys = ['minjerk_out'])
+        super(MoveSoftHand, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_hand_pos'], output_keys = ['success'])
 
         # actionlib client @joint_min_jerk_action_server
-        self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
-
+        #FOR NOW #self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
+        self._pub=rospy.Publisher('/qbhand1/control/qbhand1_synergy_trajectory_controller/command', JointTrajectory, queue_size=10)
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointMinJerkAction}) # pass required clients as dict (topic: type)
         # JointMinJerkAction
         # Input parameters of robot_module_msgs.msg
@@ -47,7 +51,13 @@ class CallJointMinJerk(EventState):
             
     def on_enter(self, userdata):
         # input [float, float, ...] of 7 joints is used for userdata.goal_joint_pos.
-        goal = robot_module_msgs.msg.JointMinJerkGoal(userdata.goal_joint_pos, self._duration, self._timestep)
+        goal = JointTrajectory()
+
+        goal.joint_names(['qbhand1_synergy_joint'])
+        point=JointTrajectoryPoint()
+
+        goal.points
+
         Logger.loginfo("Starting sending goal...")
 
         try:
@@ -69,3 +79,14 @@ class CallJointMinJerk(EventState):
             Logger.loginfo('Cancelled active action goal. No reply data.')
         Logger.loginfo('Finished sending goal to JointMinJerkGoal.')
         return 'continue'
+
+
+
+
+
+if __name__ == '__main__':
+
+    user_data
+    rospy.init_node('test_node')
+    test_state=MoveSoftHand(3,0.1)
+    test_state.on_enter()
