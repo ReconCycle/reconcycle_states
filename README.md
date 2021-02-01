@@ -52,9 +52,10 @@ Python files represent FlexBe states which are joined together into one behavior
 - [Read_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/Read_TF_CartLin.py)
 	- Added target2: lookupTransform()
 	- output_keys = ['t2_data']
+	- input_keys = ['offset']
 	- input parameters:
 		- target_frame -> string
-    	- source_frame -> string
+    		- source_frame -> string
 
 - [CallAction_TF_CartLin](/myflexgit_flexbe_states/src/myflexgit_flexbe_states/CallAction_TF_CartLin.py)
 	- Added call to cart_lin_task_action_server
