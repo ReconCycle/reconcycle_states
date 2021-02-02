@@ -32,19 +32,24 @@ class WriteToMongo(EventState):
 
     def execute(self, userdata):
         #---------------------------------------------------------------------------------------
-        # userdata.entry_data in JointState format, userdata.entry_name as store id name
+        # userdata.entry_data for JointState format
         entry_data = userdata.entry_data
-        entry_name = userdata.entry_name
         #---------------------------------------------------------------------------------------
 
         # Write to MongoDB        
-        Logger.loginfo("Writing to mongoDB _id: {}...".format(entry_name))
+        Logger.loginfo("Writing to mongoDB _id: {}...".format(userdata.entry_name))
+
+        pos = JointState(position=entry_data)
         
         try: 
-            if self.msg_store.query_named(entry_name,entry_data._type):
-                client= self.msg_store.update_named(entry_name,JointState._type)
+            present_data = self.msg_store.query_named(str(userdata.entry_name), JointState._type)
+            Logger.loginfo("Data in DB: {}".format(present_data)) 
+            if present_data[0] != None:
+                Logger.loginfo("Id {} already exists in DB...Updating data.".format(userdata.entry_name))
+                client= self.msg_store.update_named(str(userdata.entry_name), pos)
             else:
-                client = self.msg_store.insert_named(entry_name, JointState._type)
+                Logger.loginfo("Writing to DB: id {}, data {}.".format(userdata.entry_name, userdata.entry_data))
+                client = self.msg_store.insert_named(str(userdata.entry_name), pos)
                    
             Logger.loginfo("Written successfully!")
 

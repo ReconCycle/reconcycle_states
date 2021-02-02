@@ -2,7 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Pose
-import tf
+import tf2_geometry_msgs
 from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
 import actionlib
@@ -26,39 +26,36 @@ class CallT2(EventState):
         rospy.loginfo('__init__ callback happened.')   
         super(CallT2, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['t2_data'], output_keys = ['t2_out'])
         
-        # After thest change 'panda_2/cart_trap_vel_action_server' to 'cart_trap_vel_action_server' !
-        self._topic = 'panda_1/cart_lin_task_action_server'
-        #self._topic = 'cart_lin_task_action_server'
+        # Declaring topic and client
+        self._topic = 'cart_lin_action_server'
         self._client = actionlib.SimpleActionClient(self._topic, robot_module_msgs.msg.CartLinTaskAction)
 
     def on_enter(self, userdata):
         Logger.loginfo("Started sending goal...")
-        # After test change Pose(position =[1, 1, 1], orientation = [0, 0, 0, 1]) to userdata.pose_data
-        test = Pose()
-        self.goal_pose = userdata.t2_data
-        goal = robot_module_msgs.msg.CartLinTaskGoal([self.goal_pose], 0.05, None)    
         
+        # create goal
+        goal = robot_module_msgs.msg.CartLinTaskGoal([userdata.t2_data.pose], 1, None)  
+        Logger.loginfo("Goal created: {}".format(goal))
         try:
+            # send goal and wait for result
             self._client.send_goal(goal)
+            Logger.loginfo("Goal sent: {}".format(str(userdata.t2_data.pose)))
             self._client.wait_for_result()
-            Logger.loginfo("Goal sent: {}".format(str(self.goal_pose)))
+            
         except Exception as e:
             Logger.loginfo("No result or server is not active!")
             return 'failed'        
-              
+        
+        # result from server
         self.result = self._client.get_result()
-        Logger.loginfo("Action Server reply: \n {}".format(str(self.result)))    
+        Logger.loginfo("Server reply: \n {}".format(str(self.result)))    
         
     
     def execute(self, userdata):
-        #self.listener = tf.TransformListener()  
         userdata.t2_out = self.result      
     
-        return 'continue'
-        
+        return 'continue'        
 
     def on_exit(self, userdata):
         Logger.loginfo('Exiting call (CartLin).')
         return 'continue'
-
-

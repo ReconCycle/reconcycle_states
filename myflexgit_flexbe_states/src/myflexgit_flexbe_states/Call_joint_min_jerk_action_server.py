@@ -6,6 +6,7 @@ from flexbe_core import EventState, Logger
 import robot_module_msgs.msg
 import time
 
+
 class CallJointMinJerk(EventState):
 
     '''
