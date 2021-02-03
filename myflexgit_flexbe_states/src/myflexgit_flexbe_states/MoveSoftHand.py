@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+
+from flexbe_core.proxy import ProxyPublisher
 import actionlib
 import rospy
 from flexbe_core import EventState, Logger
@@ -86,7 +88,15 @@ class MoveSoftHand(EventState):
 
 if __name__ == '__main__':
 
-    user_data
+    print("Testing standalone")
+
+    class userdata():
+
+        def __init__(self):
+
+            self.goal_joint_pos=[0.5]
+
+
     rospy.init_node('test_node')
     test_state=MoveSoftHand(3,0.1)
-    test_state.on_enter()
+    test_state.on_enter(userdata)

@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -48,6 +49,8 @@ class Pick_and_Drop_testSM(Behavior):
 		_state_machine.userdata.goal_joint_pos = [-0.19,-0.18,0.55,-1.71,0.12,1.76,0.79]
 		_state_machine.userdata.entry_name = 'test flexbe'
 		_state_machine.userdata.goal_joint_pos2 = [-0.74,0.14,0.36,-1.53,-0.07,1.88,0.25]
+		_state_machine.userdata.hand_grab_positon = [0.5]
+		_state_machine.userdata.hand_release_positon = [0.1]
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -66,9 +69,16 @@ class Pick_and_Drop_testSM(Behavior):
 			# x:366 y:147
 			OperatableStateMachine.add('Move to point 1',
 										CallJointMinJerk(motion_duration=5, motion_timestep=0.1),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'Grab object', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'goal_joint_pos': 'goal_joint_pos2', 'minjerk_out': 'minjerk_out'})
+
+			# x:577 y:293
+			OperatableStateMachine.add('Grab object',
+										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
 
 
 		return _state_machine
