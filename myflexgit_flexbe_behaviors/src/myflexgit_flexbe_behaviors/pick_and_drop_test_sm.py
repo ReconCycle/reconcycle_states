@@ -8,8 +8,8 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
+from myflexgit_flexbe_states.Activate_raspi_digital_IO import MoveSoftHand as myflexgit_flexbe_states__MoveSoftHand
 from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
-from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -75,7 +75,7 @@ class Pick_and_Drop_testSM(Behavior):
 
 			# x:577 y:293
 			OperatableStateMachine.add('Grab object',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+										myflexgit_flexbe_states__MoveSoftHand(motion_duration=3, motion_timestep=0.1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
