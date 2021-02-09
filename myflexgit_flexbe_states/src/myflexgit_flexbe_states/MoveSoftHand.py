@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 
-from flexbe_core.proxy import ProxyPublisher
-import actionlib
+
 import rospy
 from flexbe_core import EventState, Logger
+
+from flexbe_core.proxy import ProxyActionClient
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 import robot_module_msgs.msg
 from trajectory_msgs.msg import JointTrajectory,JointTrajectoryPoint
 import time
@@ -31,20 +33,21 @@ class MoveSoftHand(EventState):
 
         # actionlib client @joint_min_jerk_action_server
         #FOR NOW #self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
-        self._pub=rospy.Publisher('/qbhand1/control/qbhand1_synergy_trajectory_controller/command', JointTrajectory, queue_size=10)
+        self._topic='/qbhand1/control/qbhand1_synergy_trajectory_controller/follow_joint_trajectory'
+        self._client = ProxyActionClient({self._topic: FollowJointTrajectoryAction})
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointMinJerkAction}) # pass required clients as dict (topic: type)
         # JointMinJerkAction
         # Input parameters of robot_module_msgs.msg
-        self._duration = motion_duration
+        self._duration = rospy.Duration(motion_duration)
         self._timestep = motion_timestep
 
     def execute(self, userdata):
         result = []
 
         try:
-            result = self._client.get_result()
-            userdata.minjerk_out = result 
-            Logger.loginfo("Action Server reply: \n {}".format(str(userdata.minjerk_out)))
+            result = self._client.get_result(self._topic)
+
+            Logger.loginfo("Action Server reply: \n {}".format(str(result)))
         except Exception as e:
             Logger.loginfo("No result or server is not active!")
             return 'failed'
@@ -53,19 +56,25 @@ class MoveSoftHand(EventState):
             
     def on_enter(self, userdata):
         # input [float, float, ...] of 7 joints is used for userdata.goal_joint_pos.
-        goal = JointTrajectory()
 
-        goal.joint_names(['qbhand1_synergy_joint'])
+        goal = FollowJointTrajectoryGoal()
+
+        goal.trajectory.joint_names=['qbhand1_synergy_joint']
+
+
         point=JointTrajectoryPoint()
+        point.positions=userdata.goal_joint_pos
+        point.time_from_start = self._duration
 
-        goal.points
+        goal.trajectory.points=[point]
+
 
         Logger.loginfo("Starting sending goal...")
 
         try:
             Logger.loginfo("Goal sent: {}".format(str(userdata.goal_joint_pos)))
-            self._client.send_goal(goal)
-            while self._client.get_result() == None:
+            self._client.send_goal(self._topic,goal)
+            while self._client.get_result(self._topic) == None:
                 Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
                 time.sleep(0.2)
 
@@ -76,8 +85,8 @@ class MoveSoftHand(EventState):
             self._error = True
 
     def on_exit(self, userdata):
-        if not self._client.get_result():
-            self._client.cancel_goal()
+        if not self._client.get_result(self._topic):
+            self._client.cancel_goal(self._topic)
             Logger.loginfo('Cancelled active action goal. No reply data.')
         Logger.loginfo('Finished sending goal to JointMinJerkGoal.')
         return 'continue'
@@ -92,11 +101,13 @@ if __name__ == '__main__':
 
     class userdata():
 
-        def __init__(self):
+        def __init__(self,pos):
 
-            self.goal_joint_pos=[0.5]
+            self.goal_joint_pos=[pos]
 
-
+    usertest=userdata(0.1)
     rospy.init_node('test_node')
-    test_state=MoveSoftHand(3,0.1)
-    test_state.on_enter(userdata)
+    test_state=MoveSoftHand(6,0.1)
+    test_state.on_enter(usertest)
+    test_state.on_exit(usertest)
+    test_state.on_exit(usertest)
