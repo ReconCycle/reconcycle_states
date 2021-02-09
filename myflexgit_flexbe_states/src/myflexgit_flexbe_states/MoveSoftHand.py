@@ -88,7 +88,7 @@ class MoveSoftHand(EventState):
         if not self._client.get_result(self._topic):
             self._client.cancel_goal(self._topic)
             Logger.loginfo('Cancelled active action goal. No reply data.')
-        Logger.loginfo('Finished sending goal to JointMinJerkGoal.')
+        Logger.loginfo('Finished sending goal to hand.')
         return 'continue'
 
 
@@ -105,9 +105,9 @@ if __name__ == '__main__':
 
             self.goal_joint_pos=[pos]
 
-    usertest=userdata(0.1)
+    usertest=userdata(0.2)
     rospy.init_node('test_node')
-    test_state=MoveSoftHand(6,0.1)
+    test_state=MoveSoftHand(3,0.1)
     test_state.on_enter(usertest)
     test_state.on_exit(usertest)
     test_state.on_exit(usertest)
