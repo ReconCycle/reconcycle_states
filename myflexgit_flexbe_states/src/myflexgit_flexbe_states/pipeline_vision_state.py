@@ -36,14 +36,16 @@ class CameraVision(EventState):
     def on_enter(self, userdata):
         Logger.loginfo("On enter!")
         # define subscriber for image_color, rospy subscriber
-        image_sub = rospy.Subscriber(image_color_topic, Image, callback)
-        data_sub = rospy.Subscriber(data_topic, String, callback)
+        self.image_sub = rospy.Subscriber(image_color_topic, Image, callback)
+        self.data_sub = rospy.Subscriber(data_topic, String, callback)
 
         return 'continue'
 
 
     def execute(self, userdata):
         Logger.loginfo("On execute!")
+        image_sub = self.image_sub
+        data_sub = self.data_sub
         try:
             # Header is not included.
             if image_sub:
@@ -86,7 +88,7 @@ class CameraVision(EventState):
 
         except (ROSException, ROSInterrupException):
             Logger.loginfo("Error in input data!")
-            break
+            return 'failed'
 
         # time sync with rospy subscriber
         #ts = message_filters.TimeSynchronizer([image_sub, data_sub], 1)
