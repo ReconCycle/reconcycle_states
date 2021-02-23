@@ -29,8 +29,8 @@ class MoveSoftHand(EventState):
     '''
 
     def __init__(self, motion_duration, motion_timestep):
-        super(MoveSoftHand, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_hand_pos'], output_keys = ['success'])
-
+        super( MoveSoftHand, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_hand_pos'], output_keys = ['success'])
+        Logger.loginfo("INIT...TEST")
         # actionlib client @move 
         #FOR NOW #self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
         self._topic='/qbhand1/control/qbhand1_synergy_trajectory_controller/follow_joint_trajectory'
@@ -43,7 +43,7 @@ class MoveSoftHand(EventState):
 
     def execute(self, userdata):
         result = []
-
+        Logger.loginfo("Execute...TEST")
         try:
             result = self._client.get_result(self._topic)
 
@@ -69,7 +69,7 @@ class MoveSoftHand(EventState):
         goal.trajectory.points=[point]
 
 
-        Logger.loginfo("Starting sending goal...")
+        Logger.loginfo("Starting sending goal...TEST")
 
         try:
             Logger.loginfo("Goal sent: {}".format(str(userdata.goal_hand_pos)))
@@ -85,10 +85,12 @@ class MoveSoftHand(EventState):
             self._error = True
 
     def on_exit(self, userdata):
+
+        Logger.loginfo('Finished sending goal to hand. TEST0')
         if not self._client.get_result(self._topic):
             self._client.cancel_goal(self._topic)
-            Logger.loginfo('Cancelled active action goal. No reply data.')
-        Logger.loginfo('Finished sending goal to hand.')
+            Logger.loginfo('Cancelled active action goal. No reply data. TEST')
+        Logger.loginfo('Finished sending goal to hand. TEST')
         return 'continue'
 
 

@@ -8,8 +8,9 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from myflexgit_flexbe_states.Activate_raspi_digital_IO import MoveSoftHand as myflexgit_flexbe_states__MoveSoftHand
 from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
+from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -44,13 +45,16 @@ class Pick_and_Drop_testSM(Behavior):
 
 
 	def create(self):
-		# x:797 y:131, x:130 y:365
+		# x:1161 y:653, x:55 y:600
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.goal_joint_pos = [-0.19,-0.18,0.55,-1.71,0.12,1.76,0.79]
+		_state_machine.userdata.PA_start_joint_pos = [-1.31,-0.08,-0.21,-1.618,-0.103,1.68,0.97]
 		_state_machine.userdata.entry_name = 'test flexbe'
-		_state_machine.userdata.goal_joint_pos2 = [-0.74,0.14,0.36,-1.53,-0.07,1.88,0.25]
-		_state_machine.userdata.hand_grab_positon = [0.5]
+		_state_machine.userdata.PA_pick_joint_pos = [0.14161578650850998, -1.5168914103295907, -2.1584001102049624, -1.8599657923756354, -1.8240628920282174, 3.4166442354520155, 0.7055232277431606]
+		_state_machine.userdata.hand_grab_positon = [0.6]
 		_state_machine.userdata.hand_release_positon = [0.1]
+		_state_machine.userdata.PA_drop_joint_pos = [1.1941379129761143, -1.3262326462394314, -1.6472267352773604, -2.5728268495777202, -1.9003523117568755, 3.024962522929494, 1.016712569170942]
+		_state_machine.userdata.True1 = True
+		_state_machine.userdata.False1 = False
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -59,25 +63,81 @@ class Pick_and_Drop_testSM(Behavior):
 
 
 		with _state_machine:
-			# x:70 y:149
+			# x:43 y:51
 			OperatableStateMachine.add('Move to start',
-										CallJointMinJerk(motion_duration=5, motion_timestep=0.1),
+										CallJointMinJerk(motion_duration=10, motion_timestep=0.1),
+										transitions={'continue': 'Open hand', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_joint_pos': 'PA_start_joint_pos', 'minjerk_out': 'minjerk_out'})
+
+			# x:901 y:253
+			OperatableStateMachine.add('Hold object',
+										ActivateRaspiDigitalOuput(service_name="/obr_activate"),
+										transitions={'continue': 'Rotate object', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'value': 'True1', 'success': 'success'})
+
+			# x:837 y:47
+			OperatableStateMachine.add('Move to drop location',
+										CallJointMinJerk(motion_duration=10, motion_timestep=0.1),
+										transitions={'continue': 'Release hand for drop', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_joint_pos': 'PA_drop_joint_pos', 'minjerk_out': 'minjerk_out'})
+
+			# x:434 y:54
+			OperatableStateMachine.add('Move to point 1',
+										CallJointMinJerk(motion_duration=10, motion_timestep=0.1),
+										transitions={'continue': 'Grab object', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_joint_pos': 'PA_pick_joint_pos', 'minjerk_out': 'minjerk_out'})
+
+			# x:240 y:51
+			OperatableStateMachine.add('Open hand',
+										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
 										transitions={'continue': 'Move to point 1', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_joint_pos': 'goal_joint_pos', 'minjerk_out': 'minjerk_out'})
+										remapping={'goal_hand_pos': 'hand_release_positon', 'success': 'success'})
 
-			# x:366 y:147
-			OperatableStateMachine.add('Move to point 1',
-										CallJointMinJerk(motion_duration=5, motion_timestep=0.1),
-										transitions={'continue': 'Grab object', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_joint_pos': 'goal_joint_pos2', 'minjerk_out': 'minjerk_out'})
+			# x:1098 y:45
+			OperatableStateMachine.add('Release hand for drop',
+										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+										transitions={'continue': 'Retreat robot', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_hand_pos': 'hand_release_positon', 'success': 'success'})
 
-			# x:577 y:293
-			OperatableStateMachine.add('Grab object',
-										myflexgit_flexbe_states__MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+			# x:901 y:526
+			OperatableStateMachine.add('Release object',
+										ActivateRaspiDigitalOuput(service_name="/obr_activate"),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'value': 'False1', 'success': 'success'})
+
+			# x:925 y:157
+			OperatableStateMachine.add('Retreat robot',
+										CallJointMinJerk(motion_duration=10, motion_timestep=0.1),
+										transitions={'continue': 'Hold object', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_joint_pos': 'PA_start_joint_pos', 'minjerk_out': 'minjerk_out'})
+
+			# x:901 y:431
+			OperatableStateMachine.add('Rotate back',
+										ActivateRaspiDigitalOuput(service_name="/obr_rotate"),
+										transitions={'continue': 'Release object', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'value': 'False1', 'success': 'success'})
+
+			# x:897 y:335
+			OperatableStateMachine.add('Rotate object',
+										ActivateRaspiDigitalOuput(service_name="/obr_rotate"),
+										transitions={'continue': 'Rotate back', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'value': 'True1', 'success': 'success'})
+
+			# x:623 y:50
+			OperatableStateMachine.add('Grab object',
+										MoveSoftHand(motion_duration=5, motion_timestep=0.1),
+										transitions={'continue': 'Move to drop location', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
 
 

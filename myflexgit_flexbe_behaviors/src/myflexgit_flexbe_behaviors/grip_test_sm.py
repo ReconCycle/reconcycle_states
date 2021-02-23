@@ -55,19 +55,12 @@ class Grip_testSM(Behavior):
 
 
 		with _state_machine:
-			# x:197 y:132
+			# x:30 y:40
 			OperatableStateMachine.add('grab',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'release', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
-
-			# x:604 y:395
-			OperatableStateMachine.add('release',
 										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_hand_pos': 'hand_release_positon', 'success': 'success'})
+										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
 
 
 		return _state_machine
