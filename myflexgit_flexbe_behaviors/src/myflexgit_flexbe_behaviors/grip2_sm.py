@@ -8,7 +8,8 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from flexbe_states.wait_state import WaitState
+from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -16,18 +17,18 @@ from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointM
 
 
 '''
-Created on Wed Jan 20 2021
-@author: Matej
+Created on Fri Feb 19 2021
+@author: w
 '''
-class JointMinJerkExampleSM(Behavior):
+class Grip2SM(Behavior):
 	'''
-	And example of Call_joint_min_jerk_action_server.py client.
+	ww
 	'''
 
 
 	def __init__(self):
-		super(JointMinJerkExampleSM, self).__init__()
-		self.name = 'JointMinJerkExample'
+		super(Grip2SM, self).__init__()
+		self.name = 'Grip2'
 
 		# parameters of this behavior
 
@@ -43,11 +44,9 @@ class JointMinJerkExampleSM(Behavior):
 
 
 	def create(self):
-		motion_duration = 2
-		motion_timestep = 0.01
 		# x:30 y:365, x:130 y:365
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.goal_joint_pos = [-0.44, -0.20, 0.20, -2.00, 0.018, 1.83, 1]
+		_state_machine.userdata.grib_value = [0.4]
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -56,12 +55,18 @@ class JointMinJerkExampleSM(Behavior):
 
 
 		with _state_machine:
-			# x:69 y:107
-			OperatableStateMachine.add('MoveJointMinJerkStateExample',
-										CallJointMinJerk(motion_duration=motion_duration, motion_timestep=motion_timestep),
+			# x:175 y:78
+			OperatableStateMachine.add('test',
+										WaitState(wait_time=2),
+										transitions={'done': 'grib'},
+										autonomy={'done': Autonomy.Low})
+
+			# x:311 y:224
+			OperatableStateMachine.add('grib',
+										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_joint_pos': 'goal_joint_pos', 'minjerk_out': 'minjerk_out'})
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_hand_pos': 'grib_value', 'success': 'success'})
 
 
 		return _state_machine

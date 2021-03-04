@@ -17,21 +17,21 @@ import time
 class MoveSoftHand(EventState):
 
     '''
-    Calls JointMinJerkAction server @ '/joint_min_jerk_action_server' topic
+    Calls qb hand server
     [...]
     
     -- motion_duration  float		Speed data
     -- motion_timestep  float		Timestamp data  
-    ># goal_joint_pos   string []	Position data input [float, float, ...] of 7 joints
-    #< minjerk_out      sting []  	minjerk action server reply userdata output
+    ># goal_hand_pos   string []	Position data input [float] of 1 joint
+    #< success     bool 	minjerk action server reply userdata output
     <= continue                 Written successfully
     <= failed                  	Failed
     '''
 
     def __init__(self, motion_duration, motion_timestep):
-        super(MoveSoftHand, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_hand_pos'], output_keys = ['success'])
-
-        # actionlib client @joint_min_jerk_action_server
+        super( MoveSoftHand, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_hand_pos'], output_keys = ['success'])
+        Logger.loginfo("INIT...TEST")
+        # actionlib client @move 
         #FOR NOW #self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
         self._topic='/qbhand1/control/qbhand1_synergy_trajectory_controller/follow_joint_trajectory'
         self._client = ProxyActionClient({self._topic: FollowJointTrajectoryAction})
@@ -43,7 +43,7 @@ class MoveSoftHand(EventState):
 
     def execute(self, userdata):
         result = []
-
+        Logger.loginfo("Execute...TEST")
         try:
             result = self._client.get_result(self._topic)
 
@@ -55,7 +55,7 @@ class MoveSoftHand(EventState):
         return 'continue'
             
     def on_enter(self, userdata):
-        # input [float, float, ...] of 7 joints is used for userdata.goal_joint_pos.
+
 
         goal = FollowJointTrajectoryGoal()
 
@@ -63,16 +63,16 @@ class MoveSoftHand(EventState):
 
 
         point=JointTrajectoryPoint()
-        point.positions=userdata.goal_joint_pos
+        point.positions=userdata.goal_hand_pos
         point.time_from_start = self._duration
 
         goal.trajectory.points=[point]
 
 
-        Logger.loginfo("Starting sending goal...")
+        Logger.loginfo("Starting sending goal...TEST")
 
         try:
-            Logger.loginfo("Goal sent: {}".format(str(userdata.goal_joint_pos)))
+            Logger.loginfo("Goal sent: {}".format(str(userdata.goal_hand_pos)))
             self._client.send_goal(self._topic,goal)
             while self._client.get_result(self._topic) == None:
                 Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
@@ -85,10 +85,12 @@ class MoveSoftHand(EventState):
             self._error = True
 
     def on_exit(self, userdata):
+
+        Logger.loginfo('Finished sending goal to hand. TEST0')
         if not self._client.get_result(self._topic):
             self._client.cancel_goal(self._topic)
-            Logger.loginfo('Cancelled active action goal. No reply data.')
-        Logger.loginfo('Finished sending goal to hand.')
+            Logger.loginfo('Cancelled active action goal. No reply data. TEST')
+        Logger.loginfo('Finished sending goal to hand. TEST')
         return 'continue'
 
 
@@ -103,9 +105,9 @@ if __name__ == '__main__':
 
         def __init__(self,pos):
 
-            self.goal_joint_pos=[pos]
+            self.goal_hand_pos=[pos]
 
-    usertest=userdata(0.2)
+    usertest=userdata(0.1)
     rospy.init_node('test_node')
     test_state=MoveSoftHand(3,0.1)
     test_state.on_enter(usertest)
