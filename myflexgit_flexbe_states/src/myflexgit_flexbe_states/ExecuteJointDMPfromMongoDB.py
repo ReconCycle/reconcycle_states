@@ -63,7 +63,7 @@ class ExeJointDMP(EventState):
 
         self._time_scale=time_scale
         self._timestep = motion_timestep
-        self._duration = 10
+        self._duration = 3
         
     def on_enter(self, userdata):
 
@@ -95,7 +95,7 @@ class ExeJointDMP(EventState):
         #Move robot on DMP starting postion y0
         Logger.loginfo("Move robot on DMP starting postion y0...")
 
-        print(DMP)
+       
         
         start_goal = JointMinJerkGoal(DMP.y0.position, self._duration, self._timestep)
         
@@ -107,7 +107,9 @@ class ExeJointDMP(EventState):
             self._client.send_goal(self._move_joint_topic,start_goal)
             timeout = time.time()
             while self._client.get_result(self._move_joint_topic) == None:
-                Logger.loginfo("{}".format(JointMinJerkFeedback()))
+
+                feedback = self._client.get_feedback(self._move_joint_topic)
+                Logger.loginfo("{}".format(feedback))
                 time.sleep(0.5)
                 # 12 secs timeout
                 if time.time()-timeout > 12:
@@ -120,49 +122,51 @@ class ExeJointDMP(EventState):
             self._error = True
             return 'failed'
 
+        #Execute DMP 
+        Logger.loginfo("Execute DMP ...")
+
+        
+        dmp_goal = JointDMPGoal(DMP)
         
 
-
-    def test(self):
-        goal = FollowJointTrajectoryGoal()
-
-        goal.trajectory.joint_names=['qbhand1_synergy_joint']
-
-
-        point=JointTrajectoryPoint()
-        point.positions=userdata.goal_hand_pos
-        point.time_from_start = self._duration
-
-        goal.trajectory.points=[point]
-
-
-        Logger.loginfo("Starting sending goal...TEST")
-
-
-
-
-
-
-
-        result = []
-        Logger.loginfo("Execute...TEST")
         try:
-            result = self._client.get_result(self._topic)
+            #Logger.loginfo("DMP sent: {}".format(DMP))
 
-            Logger.loginfo("Action Server reply: \n {}".format(str(result)))
+
+            self._client.send_goal(self._execute_DMP_topic,dmp_goal)
+            timeout = time.time()
+            while self._client.get_result(self._execute_DMP_topic) == None:
+                time.sleep(0.5)
+                feedback = self._client.get_feedback(self._execute_DMP_topic)
+                
+                
+                Logger.loginfo("{}".format(str(feedback.joints.position)))
+
+                
+                # 12 secs timeout
+                if time.time()-timeout > 12:
+                    break
+
+            return 'continue'
+
         except Exception as e:
-            Logger.loginfo("No result or server is not active!")
-            return 'failed'
+            # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
+			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
+            Logger.loginfo('Failed to send DMP:\n{}'.format(str(e)))
+            self._error = True
+            return 'failed'      
 
-        return 'continue'
+
+
+
             
    
 
-    def on_exit2(self, userdata):
+    def on_exit(self, userdata):
 
         Logger.loginfo('Finished sending goal to hand. TEST0')
-        if not self._client.get_result(self._topic):
-            self._client.cancel_goal(self._topic)
+        if not self._client.get_result(self._execute_DMP_topic):
+            self._client.cancel(self._execute_DMP_topic)
             Logger.loginfo('Cancelled active action goal. No reply data. TEST')
         Logger.loginfo('Finished sending goal to hand. TEST')
         return 'continue'
