@@ -19,6 +19,9 @@ import time
 from robot_module_msgs.msg import JointDMPAction,JointDMPFeedback,JointDMPGoal
 from robot_module_msgs.msg import JointMinJerkAction,JointMinJerkFeedback,JointMinJerkGoal
 
+from robot_module_msgs.msg import JointSpaceDMP
+
+
 class ExeJointDMP(EventState):
 
     '''
@@ -34,15 +37,15 @@ class ExeJointDMP(EventState):
     '''
 
     def __init__(self, time_scale, motion_timestep, robot_namespace=''):
-        super( ExeJointDMP, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['entry name'], output_keys = ['success'])
+        super( ExeJointDMP, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['entry_name'], output_keys = ['success'])
         Logger.loginfo("INIT...DMP execution")
 
         self._robot_namespace = robot_namespace
 
 
-        self._move_joint_topic = self._robot_namespace + '/joint_DMP_action_server'
+        self._move_joint_topic = self._robot_namespace + '/joint_min_jerk_action_server'
+        self._execute_DMP_topic = self._robot_namespace + '/joint_DMP_action_server'
 
-        self._execute_DMP_topic = self._robot_namespace + '/joint_min_jerk_action_server'
 
         # Client for reading from mongoDB
 
@@ -60,23 +63,67 @@ class ExeJointDMP(EventState):
 
         self._time_scale=time_scale
         self._timestep = motion_timestep
-
-    def execute(self, userdata):
-        result = []
-        Logger.loginfo("Execute...TEST")
-        try:
-            result = self._client.get_result(self._topic)
-
-            Logger.loginfo("Action Server reply: \n {}".format(str(result)))
-        except Exception as e:
-            Logger.loginfo("No result or server is not active!")
-            return 'failed'
-
-        return 'continue'
-            
+        self._duration = 10
+        
     def on_enter(self, userdata):
 
+        Logger.loginfo("Reading from DMP from MongoDB base: \n {}".format('DMP name'+userdata.entry_name))
 
+
+
+
+      
+
+    def execute(self, userdata):
+
+        #Read from mongo db 
+     
+        Logger.loginfo("Reading _id: {} DMP from mongoDB: ... \n ".format(userdata.entry_name))  
+ 
+
+        try:
+   
+            data_from_db = self._client_mongodb.query_named(userdata.entry_name, JointSpaceDMP._type)
+            
+            DMP=data_from_db[0]
+        except rospy.ServiceException as e:
+    
+            Logger.loginfo("MongoDB is not reachable...")
+            self.reachable = False
+            return 'failed'
+
+        #Move robot on DMP starting postion y0
+        Logger.loginfo("Move robot on DMP starting postion y0...")
+
+        print(DMP)
+        
+        start_goal = JointMinJerkGoal(DMP.y0.position, self._duration, self._timestep)
+        
+
+        try:
+            Logger.loginfo("Start position sent: {}".format(DMP.y0.position))
+
+
+            self._client.send_goal(self._move_joint_topic,start_goal)
+            timeout = time.time()
+            while self._client.get_result(self._move_joint_topic) == None:
+                Logger.loginfo("{}".format(JointMinJerkFeedback()))
+                time.sleep(0.5)
+                # 12 secs timeout
+                if time.time()-timeout > 12:
+                    break
+
+        except Exception as e:
+            # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
+			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
+            Logger.loginfo('Failed to send the starting point command:\n{}'.format(str(e)))
+            self._error = True
+            return 'failed'
+
+        
+
+
+    def test(self):
         goal = FollowJointTrajectoryGoal()
 
         goal.trajectory.joint_names=['qbhand1_synergy_joint']
@@ -91,20 +138,27 @@ class ExeJointDMP(EventState):
 
         Logger.loginfo("Starting sending goal...TEST")
 
+
+
+
+
+
+
+        result = []
+        Logger.loginfo("Execute...TEST")
         try:
-            Logger.loginfo("Goal sent: {}".format(str(userdata.goal_hand_pos)))
-            self._client.send_goal(self._topic,goal)
-            while self._client.get_result(self._topic) == None:
-                Logger.loginfo("{}".format(robot_module_msgs.msg.JointMinJerkFeedback()))
-                time.sleep(0.2)
+            result = self._client.get_result(self._topic)
 
+            Logger.loginfo("Action Server reply: \n {}".format(str(result)))
         except Exception as e:
-            # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
-			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
-            Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
-            self._error = True
+            Logger.loginfo("No result or server is not active!")
+            return 'failed'
 
-    def on_exit(self, userdata):
+        return 'continue'
+            
+   
+
+    def on_exit2(self, userdata):
 
         Logger.loginfo('Finished sending goal to hand. TEST0')
         if not self._client.get_result(self._topic):
@@ -123,14 +177,14 @@ if __name__ == '__main__':
 
     class userdata():
 
-        def __init__(self,pos):
+        def __init__(self,name):
 
-            self.goal_hand_pos=[pos]
+            self.entry_name=name
 
-    usertest=userdata(0.1)
+    usertest=userdata("trj1")
     rospy.init_node('test_node')
     test_state=ExeJointDMP(1,0.1,'/panda1')
 
-    #test_state.on_enter(usertest)
-    #test_state.on_exit(usertest)
+    test_state.on_enter(usertest)
+    test_state.execute(usertest)
     #test_state.on_exit(usertest)
