@@ -15,17 +15,20 @@ class CallJointMinJerk(EventState):
     
     -- motion_duration  float		Speed data
     -- motion_timestep  float		Timestamp data  
+    -- namespace         string []  namespace of publish topic
     ># goal_joint_pos   string []	Position data input [float, float, ...] of 7 joints
     #< minjerk_out      sting []  	minjerk action server reply userdata output
     <= continue                 Written successfully
     <= failed                  	Failed
     '''
 
-    def __init__(self, motion_duration, motion_timestep):
+    def __init__(self, motion_duration, motion_timestep, namespace=''):
         super(CallJointMinJerk, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['goal_joint_pos'], output_keys = ['minjerk_out'])
 
         # actionlib client @joint_min_jerk_action_server
-        self._client = actionlib.SimpleActionClient('joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
+
+        self._server_namespace=namespace
+        self._client = actionlib.SimpleActionClient(self._server_namespace+'/joint_min_jerk_action_server', robot_module_msgs.msg.JointMinJerkAction)
 
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointMinJerkAction}) # pass required clients as dict (topic: type)
         # JointMinJerkAction
@@ -74,3 +77,23 @@ class CallJointMinJerk(EventState):
             Logger.loginfo('Cancelled active action goal. No reply data.')
         Logger.loginfo('Finished sending goal to JointMinJerkGoal.')
         return 'continue'
+
+
+if __name__ == '__main__':
+
+    print("Testing standalone")
+
+    class userdata():
+
+        def __init__(self,pos):
+
+            self.goal_joint_pos=pos
+
+    
+    rospy.init_node('test_node')
+    test_state=CallJointMinJerk(3,0.1,'/panda1')
+    usertest=userdata([0.1,0.1,0.1,0.1,0.1,0.1,0.1])
+    usertest=userdata([1,1,1,1,1,1,1])
+    test_state.on_enter(usertest)
+    test_state.execute(usertest)
+    test_state.on_exit(usertest)
