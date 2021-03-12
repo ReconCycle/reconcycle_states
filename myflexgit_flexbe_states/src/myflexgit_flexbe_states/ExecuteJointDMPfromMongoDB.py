@@ -63,7 +63,7 @@ class ExeJointDMP(EventState):
 
         self._time_scale=time_scale
         self._timestep = motion_timestep
-        self._duration = 3
+        self._duration = 6
         
     def on_enter(self, userdata):
 

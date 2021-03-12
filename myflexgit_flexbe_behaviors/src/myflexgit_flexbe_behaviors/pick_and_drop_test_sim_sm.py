@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
+from myflexgit_flexbe_states.ExecuteJointDMPfromMongoDB import ExeJointDMP
 from myflexgit_flexbe_states.read_from_mongodb import ReadFromMongo
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -55,6 +56,7 @@ class Pick_and_Drop_test_simSM(Behavior):
 		_state_machine.userdata.True1 = True
 		_state_machine.userdata.False1 = False
 		_state_machine.userdata.name_of_point = 'position5'
+		_state_machine.userdata.name_trj = 'trj1'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -70,10 +72,17 @@ class Pick_and_Drop_test_simSM(Behavior):
 										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'goal_joint_pos': 'PA_start_joint_pos', 'minjerk_out': 'minjerk_out'})
 
+			# x:837 y:47
+			OperatableStateMachine.add('Move to drop location',
+										CallJointMinJerk(motion_duration=10, motion_timestep=0.1, namespace='/panda1'),
+										transitions={'continue': 'Retreat robot', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_joint_pos': 'joints_data_mongo', 'minjerk_out': 'minjerk_out'})
+
 			# x:434 y:54
 			OperatableStateMachine.add('Move to point 1',
 										CallJointMinJerk(motion_duration=10, motion_timestep=0.1, namespace='/panda1'),
-										transitions={'continue': 'Read MDB point 1', 'failed': 'failed'},
+										transitions={'continue': 'Migaj', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'goal_joint_pos': 'PA_pick_joint_pos', 'minjerk_out': 'minjerk_out'})
 
@@ -91,12 +100,12 @@ class Pick_and_Drop_test_simSM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_joint_pos': 'PA_start_joint_pos', 'minjerk_out': 'minjerk_out'})
 
-			# x:837 y:47
-			OperatableStateMachine.add('Move to drop location',
-										CallJointMinJerk(motion_duration=10, motion_timestep=0.1, namespace='/panda1'),
-										transitions={'continue': 'Retreat robot', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'goal_joint_pos': 'joints_data_mongo', 'minjerk_out': 'minjerk_out'})
+			# x:182 y:132
+			OperatableStateMachine.add('Migaj',
+										ExeJointDMP(time_scale=1, motion_timestep=0.1, robot_namespace='/panda1'),
+										transitions={'continue': 'Read MDB point 1', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'entry_name': 'name_trj', 'success': 'success'})
 
 
 		return _state_machine
