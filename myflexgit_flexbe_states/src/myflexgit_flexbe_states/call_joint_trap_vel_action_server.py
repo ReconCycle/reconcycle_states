@@ -1,6 +1,6 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
-import actionlib
+
 import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
@@ -31,8 +31,9 @@ class CallJointTrap(EventState):
 
         # replace 'panda_2/joint_trap_vel_action_server' from dummies with 'joint_trap_vel_action_server'
         self._namespace=namespace
-        #self._topic = self._namespace + '/joint_impedance_controller/move_joint_trap'
-        self._topic =  '/joint_impedance_controller/move_joint_trap'
+        
+        self._topic = self._namespace + '/joint_impedance_controller/move_joint_trap'
+        self._topic = '/joint_impedance_controller/move_joint_trap'
 
         self._client = ProxyActionClient({ self._topic: JointTrapVelAction})
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointTrapVelAction}) # pass required clients as dict (topic: type)
@@ -47,6 +48,17 @@ class CallJointTrap(EventState):
             result = self._client.get_result()
             userdata.joint_values = result 
             Logger.loginfo("Action Server reply: \n {}".format(str(userdata.joint_values)))
+
+
+            while self._client.get_result(self._topic) == None:
+
+                feedback = self._client.get_feedback(self._topic)
+                Logger.loginfo("{}".format(feedback))
+                time.sleep(0.5)
+                # 12 secs timeout
+                if time.time()-timeout > 12:
+                    break
+
         except Exception as e:
             Logger.loginfo("No result or server is not active!")
             return 'failed'
@@ -60,7 +72,7 @@ class CallJointTrap(EventState):
         joint.position = self.goal_joint
         goal = JointTrapVelGoal([joint], 0.3, 0.3)
 
-        print(goal)
+        
         Logger.loginfo("Starting sending goal...")
 
         try:
@@ -94,13 +106,13 @@ if __name__ == '__main__':
     
     rospy.init_node('test_node')
     test_state=CallJointTrap(0.5,0.1)
-    usertest=userdata([1,1,1,1,1,1,1])
-    test_state.on_enter(usertest)
+    #usertest=userdata([1,1,1,1,1,1,1])
+    #test_state.on_enter(usertest)
     #test_state.execute(usertest)
     #test_state.on_exit(usertest)
 
 
-   # usertest=userdata([0.1,0.1,0.1,0.1,0.1,0.1,0.1])
-    #test_state.on_enter(usertest)
+    usertest=userdata([0.1,0.1,0.1,0.1,0.1,0.1,0.1])
+    test_state.on_enter(usertest)
     #test_state.execute(usertest)
     #test_state.on_exit(usertest)
