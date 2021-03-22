@@ -41,31 +41,14 @@ class CallJointTrap(EventState):
 
 		# It may happen that the action client fails to send the action goal.
 
-    def execute(self, userdata):
-        
-
-        try:
-            result = self._client.get_result()
-            userdata.joint_values = result 
-            Logger.loginfo("Action Server reply: \n {}".format(str(userdata.joint_values)))
-
-
-            while self._client.get_result(self._topic) == None:
-
-                feedback = self._client.get_feedback(self._topic)
-                Logger.loginfo("{}".format(feedback))
-                time.sleep(0.5)
-                # 12 secs timeout
-                if time.time()-timeout > 12:
-                    break
-
-        except Exception as e:
-            Logger.loginfo("No result or server is not active!")
-            return 'failed'
-
-        return 'continue'
+ 
             
     def on_enter(self, userdata):
+
+        Logger.loginfo("Enter in state...")
+     
+
+    def execute(self, userdata):
         # JointState() is used for tests. Replace JointState() with userdata.joints_data.
         self.goal_joint = userdata.joints_data #JointState()
         joint = JointState()
@@ -84,6 +67,24 @@ class CallJointTrap(EventState):
             Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
             self._error = True
 
+        try:
+          
+            timeout = time.time()
+            while self._client.get_result(self._topic) == None:
+
+                feedback = self._client.get_feedback(self._topic)
+                Logger.loginfo("{}".format(feedback))
+                time.sleep(0.5)
+                # 12 secs timeout
+                if time.time()-timeout > 12:
+                    break
+
+        except Exception as e:
+        
+            Logger.loginfo("No result or server is not active!")
+            return 'failed'
+
+        
     def on_exit(self, userdata):
         if not self._client.get_result(self._topic):
             self._client.cancel(self._topic)
@@ -111,8 +112,8 @@ if __name__ == '__main__':
     #test_state.execute(usertest)
     #test_state.on_exit(usertest)
 
-
-    usertest=userdata([0.1,0.1,0.1,0.1,0.1,0.1,0.1])
-    test_state.on_enter(usertest)
-    #test_state.execute(usertest)
+    j=0.1
+    usertest=userdata([j,j,j,j,j,j,j])
+    #test_state.on_enter(usertest)
+    test_state.execute(usertest)
     #test_state.on_exit(usertest)
