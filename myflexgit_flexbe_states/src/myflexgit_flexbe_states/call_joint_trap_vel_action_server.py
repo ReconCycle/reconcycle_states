@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     
     rospy.init_node('test_node')
-    test_state=CallJointTrap(0.5,0.1)
+    test_state=CallJointTrap(0.5,0.1,namespace='/panda1')
     j=0.2
     usertest=userdata([j,j,j,j,j,j,j])
     #test_state.on_enter(usertest)
