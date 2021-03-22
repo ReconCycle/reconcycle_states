@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyActionClient
 
 from sensor_msgs.msg import JointState
 
-
+import time
 from robot_module_msgs.msg import JointTrapVelAction,JointTrapVelGoal
 
 
@@ -33,7 +33,7 @@ class CallJointTrap(EventState):
         self._namespace=namespace
         
         self._topic = self._namespace + '/joint_impedance_controller/move_joint_trap'
-        self._topic = '/joint_impedance_controller/move_joint_trap'
+        #self._topic = '/joint_impedance_controller/move_joint_trap'
 
         self._client = ProxyActionClient({ self._topic: JointTrapVelAction})
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointTrapVelAction}) # pass required clients as dict (topic: type)
@@ -80,12 +80,15 @@ class CallJointTrap(EventState):
                     break
 
         except Exception as e:
-        
+            
             Logger.loginfo("No result or server is not active!")
             return 'failed'
 
         
     def on_exit(self, userdata):
+
+        Logger.loginfo("Exit state...")
+
         if not self._client.get_result(self._topic):
             self._client.cancel(self._topic)
             Logger.loginfo('Cancelled active action goal.')
@@ -107,13 +110,14 @@ if __name__ == '__main__':
     
     rospy.init_node('test_node')
     test_state=CallJointTrap(0.5,0.1)
-    #usertest=userdata([1,1,1,1,1,1,1])
-    #test_state.on_enter(usertest)
-    #test_state.execute(usertest)
-    #test_state.on_exit(usertest)
-
-    j=0.1
+    j=0.2
     usertest=userdata([j,j,j,j,j,j,j])
     #test_state.on_enter(usertest)
     test_state.execute(usertest)
-    #test_state.on_exit(usertest)
+    test_state.on_exit(usertest)
+
+    j=0.6
+    usertest=userdata([j,j,j,j,j,j,j])
+    #test_state.on_enter(usertest)
+    test_state.execute(usertest)
+    test_state.on_exit(usertest)
