@@ -16,8 +16,9 @@ from mongodb_store.message_store import MessageStoreProxy
 import time
 
 # Action messages
-from robot_module_msgs.msg import JointDMPAction,JointDMPFeedback,JointDMPGoal
-from robot_module_msgs.msg import JointMinJerkAction,JointMinJerkFeedback,JointMinJerkGoal
+from robot_module_msgs.msg import JointDMPAction,JointDMPGoal
+from robot_module_msgs.msg import JointTrapVelAction,JointTrapVelGoal
+#from robot_module_msgs.msg import JointMinJerkAction,JointMinJerkGoal
 
 from robot_module_msgs.msg import JointSpaceDMP
 
@@ -44,7 +45,7 @@ class ExeJointDMP(EventState):
 
 
         self._move_joint_topic = self._robot_namespace + '/joint_min_jerk_action_server'
-        self._execute_DMP_topic = self._robot_namespace + '/joint_DMP_action_server'
+        self._execute_DMP_topic = self._robot_namespace + '/joint_impedance_controller/move_joint_trap'
 
 
         # Client for reading from mongoDB
@@ -55,7 +56,7 @@ class ExeJointDMP(EventState):
 
         # Action client for executing DMP
 
-        self._client = ProxyActionClient({ self._move_joint_topic: JointMinJerkAction,self._execute_DMP_topic: JointDMPAction})
+        self._client = ProxyActionClient({ self._move_joint_topic: JointTrapVelAction,self._execute_DMP_topic: JointDMPAction})
 
 
      
@@ -95,9 +96,11 @@ class ExeJointDMP(EventState):
         #Move robot on DMP starting postion y0
         Logger.loginfo("Move robot on DMP starting postion y0...")
 
-       
+        joint = JointState()
+        joint.position = DMP.y0.position
         
-        start_goal = JointMinJerkGoal(DMP.y0.position, self._duration, self._timestep)
+        start_goal = JointTrapVelGoal([joint], self._max_vel, self._max_acl)
+        #start_goal = JointMinJerkGoal(DMP.y0.position, self._duration, self._timestep)
         
 
         try:
