@@ -66,6 +66,7 @@ class CallJointTrap(EventState):
 			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
             Logger.loginfo('Failed to send the goal command:\n{}'.format(str(e)))
             self._error = True
+            return 'failed'
 
         try:
           
@@ -88,7 +89,8 @@ class CallJointTrap(EventState):
             Logger.loginfo("No result or server is not active!")
             return 'failed'
 
-        
+        return 'continue' 
+
     def on_exit(self, userdata):
 
         Logger.loginfo("Exit state...")
