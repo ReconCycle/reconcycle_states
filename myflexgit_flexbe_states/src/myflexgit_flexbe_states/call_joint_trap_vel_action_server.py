@@ -70,15 +70,19 @@ class CallJointTrap(EventState):
         try:
           
             timeout = time.time()
-            while self._client.get_result(self._topic) == None:
-
+            result = self._client.get_result(self._topic) 
+            while result == None:
+                
                 feedback = self._client.get_feedback(self._topic)
                 Logger.loginfo("{}".format(feedback))
                 time.sleep(0.5)
                 # 12 secs timeout
+                result = self._client.get_result(self._topic) 
                 if time.time()-timeout > 12:
                     break
 
+                
+            Logger.loginfo("Result {}".format(result))
         except Exception as e:
             
             Logger.loginfo("No result or server is not active!")
@@ -109,7 +113,8 @@ if __name__ == '__main__':
 
     
     rospy.init_node('test_node')
-    test_state=CallJointTrap(0.5,0.1,namespace='/panda1')
+    test_state=CallJointTrap(0.5,0.1,namespace='')
+    #test_state=CallJointTrap(0.5,0.1,)
     j=0.2
     usertest=userdata([j,j,j,j,j,j,j])
     #test_state.on_enter(usertest)

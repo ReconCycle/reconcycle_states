@@ -22,7 +22,7 @@ from robot_module_msgs.msg import JointTrapVelAction,JointTrapVelGoal
 
 from robot_module_msgs.msg import JointSpaceDMP
 
-
+from sensor_msgs.msg import JointState
 class ExeJointDMP(EventState):
 
     '''
@@ -37,15 +37,17 @@ class ExeJointDMP(EventState):
     <= failed                  	Failed
     '''
 
-    def __init__(self, time_scale, motion_timestep, robot_namespace=''):
+    def __init__(self, time_scale, motion_timestep, robot_namespace='', max_vel=0.5, max_acl=0.5):
         super( ExeJointDMP, self).__init__(outcomes = ['continue', 'failed'], input_keys = ['entry_name'], output_keys = ['success'])
         Logger.loginfo("INIT...DMP execution")
 
         self._robot_namespace = robot_namespace
+        # save max values for trap vel move
+        self._max_acl=max_acl
+        self._max_vel=max_vel
 
-
-        self._move_joint_topic = self._robot_namespace + '/joint_min_jerk_action_server'
-        self._execute_DMP_topic = self._robot_namespace + '/joint_impedance_controller/move_joint_trap'
+        self._move_joint_topic = self._robot_namespace + '/joint_impedance_controller/move_joint_trap'
+        self._execute_DMP_topic = self._robot_namespace + '/joint_DMP_action_server'
 
 
         # Client for reading from mongoDB
@@ -190,8 +192,8 @@ if __name__ == '__main__':
 
     usertest=userdata("trj1")
     rospy.init_node('test_node')
-    test_state=ExeJointDMP(1,0.1,'/panda1')
+    test_state=ExeJointDMP(1,0.1)
 
-    test_state.on_enter(usertest)
+    #test_state.on_enter(usertest)
     test_state.execute(usertest)
-    #test_state.on_exit(usertest)
+    test_state.on_exit(usertest)

@@ -10,6 +10,7 @@
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from myflexgit_flexbe_states.Call_joint_min_jerk_action_server import CallJointMinJerk
 from myflexgit_flexbe_states.ExecuteJointDMPfromMongoDB import ExeJointDMP
+from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
 from myflexgit_flexbe_states.read_from_mongodb import ReadFromMongo
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -65,12 +66,12 @@ class Pick_and_Drop_test_simSM(Behavior):
 
 
 		with _state_machine:
-			# x:43 y:51
-			OperatableStateMachine.add('Move to start',
-										CallJointMinJerk(motion_duration=10, motion_timestep=0.1, namespace='/panda1'),
-										transitions={'continue': 'Move to point 1', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
-										remapping={'goal_joint_pos': 'PA_start_joint_pos', 'minjerk_out': 'minjerk_out'})
+			# x:188 y:29
+			OperatableStateMachine.add('Move_to_first',
+										CallJointTrap(max_vel=0.5, max_acl=0.5, namespace=''),
+										transitions={'continue': 'Migaj', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
+										remapping={'joints_data': 'PA_start_joint_pos', 'joint_values': 'joint_values'})
 
 			# x:837 y:47
 			OperatableStateMachine.add('Move to drop location',
