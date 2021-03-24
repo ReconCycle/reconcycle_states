@@ -28,7 +28,7 @@ class TestDMPexecutionSM(Behavior):
 
 	def __init__(self):
 		super(TestDMPexecutionSM, self).__init__()
-		self.name = 'Test DMP execution'
+		self.name = 'TestDMPexecution'
 
 		# parameters of this behavior
 
