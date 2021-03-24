@@ -8,7 +8,6 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
 # Additional imports can be added inside the following tags
@@ -21,15 +20,15 @@ from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointT
 Created on Mon Jan 18 2021
 @author: Rok Pahic
 '''
-class Demo1SM(Behavior):
+class TestDMPexecutionSM(Behavior):
 	'''
-	Testing Pick and drop in Reconcycle
+	Testing DMP execution on robot 2
 	'''
 
 
 	def __init__(self):
-		super(Demo1SM, self).__init__()
-		self.name = 'Demo1'
+		super(TestDMPexecutionSM, self).__init__()
+		self.name = 'Test DMP execution'
 
 		# parameters of this behavior
 
@@ -63,54 +62,12 @@ class Demo1SM(Behavior):
 
 
 		with _state_machine:
-			# x:30 y:40
-			OperatableStateMachine.add('Move to start',
-										CallJointTrap(max_vel=0.5, max_acl=0.5, namespace='panda_1'),
-										transitions={'continue': 'Open hand', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'joints_data': 'PA_start_joint_pos', 'joint_values': 'joint_values'})
-
-			# x:901 y:253
-			OperatableStateMachine.add('Hold object',
-										ActivateRaspiDigitalOuput(service_name="/obr_activate"),
-										transitions={'continue': 'Rotate object', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'value': 'True1', 'success': 'success'})
-
-			# x:409 y:141
-			OperatableStateMachine.add('Move to point1',
-										CallJointTrap(max_vel=0.1, max_acl=0.1, namespace='panda_1'),
-										transitions={'continue': 'Grab object', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'joints_data': 'PA_pick_joint_pos', 'joint_values': 'joint_values'})
-
-			# x:808 y:55
-			OperatableStateMachine.add('Move to release location',
-										CallJointTrap(max_vel=0.3, max_acl=0.3, namespace='panda_1'),
-										transitions={'continue': 'Release hand for drop', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'joints_data': 'PA_drop_joint_pos', 'joint_values': 'joint_values'})
-
 			# x:1093 y:145
 			OperatableStateMachine.add('Move to retreat location',
 										CallJointTrap(max_vel=0.5, max_acl=0.5, namespace='panda_1'),
 										transitions={'continue': 'Hold object', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'PA_start_joint_pos', 'joint_values': 'joint_values'})
-
-			# x:240 y:51
-			OperatableStateMachine.add('Open hand',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'Move to point1', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_hand_pos': 'hand_release_positon', 'success': 'success'})
-
-			# x:1098 y:45
-			OperatableStateMachine.add('Release hand for drop',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'Move to retreat location', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'goal_hand_pos': 'hand_release_positon', 'success': 'success'})
 
 			# x:901 y:526
 			OperatableStateMachine.add('Release object',
@@ -133,12 +90,12 @@ class Demo1SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'value': 'True1', 'success': 'success'})
 
-			# x:623 y:50
-			OperatableStateMachine.add('Grab object',
-										MoveSoftHand(motion_duration=5, motion_timestep=0.1),
-										transitions={'continue': 'Move to release location', 'failed': 'failed'},
+			# x:901 y:253
+			OperatableStateMachine.add('Hold object',
+										ActivateRaspiDigitalOuput(service_name="/obr_activate"),
+										transitions={'continue': 'Rotate object', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'goal_hand_pos': 'hand_grab_positon', 'success': 'success'})
+										remapping={'value': 'True1', 'success': 'success'})
 
 
 		return _state_machine

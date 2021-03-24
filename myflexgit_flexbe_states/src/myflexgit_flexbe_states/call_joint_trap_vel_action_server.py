@@ -46,9 +46,6 @@ class CallJointTrap(EventState):
     def on_enter(self, userdata):
 
         Logger.loginfo("Enter in state...")
-     
-
-    def execute(self, userdata):
         # JointState() is used for tests. Replace JointState() with userdata.joints_data.
         self.goal_joint = userdata.joints_data #JointState()
         joint = JointState()
@@ -68,6 +65,9 @@ class CallJointTrap(EventState):
             self._error = True
             return 'failed'
 
+    def execute(self, userdata):
+        
+
         try:
           
             timeout = time.time()
@@ -84,12 +84,14 @@ class CallJointTrap(EventState):
 
                 
             Logger.loginfo("Result {}".format(result))
+            return 'continue'
+
         except Exception as e:
             
             Logger.loginfo("No result or server is not active!")
             return 'failed'
 
-        return 'continue' 
+         
 
     def on_exit(self, userdata):
 

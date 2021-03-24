@@ -118,7 +118,7 @@ class ExeJointDMP(EventState):
                 time.sleep(0.5)
                 # 12 secs timeout
                 if time.time()-timeout > 12:
-                    break
+                    return 'failed'#break
 
         except Exception as e:
             # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
@@ -150,7 +150,7 @@ class ExeJointDMP(EventState):
                 
                 # 12 secs timeout
                 if time.time()-timeout > 12:
-                    break
+                    return 'failed'
 
             return 'continue'
 
@@ -169,11 +169,11 @@ class ExeJointDMP(EventState):
 
     def on_exit(self, userdata):
 
-        Logger.loginfo('Finished sending goal to hand. TEST0')
+        Logger.loginfo('Finished sending goal to hand.')
         if not self._client.get_result(self._execute_DMP_topic):
             self._client.cancel(self._execute_DMP_topic)
-            Logger.loginfo('Cancelled active action goal. No reply data. TEST')
-        Logger.loginfo('Finished sending goal to hand. TEST')
+            Logger.loginfo('Cancelled active action goal. No reply data.')
+        Logger.loginfo('Finished sending goal to hand.')
         return 'continue'
 
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     usertest=userdata("trj1")
     rospy.init_node('test_node')
-    test_state=ExeJointDMP(1,0.1)
+    test_state=ExeJointDMP(1,0.1,robot_namespace='panda_2')
 
     #test_state.on_enter(usertest)
     test_state.execute(usertest)
