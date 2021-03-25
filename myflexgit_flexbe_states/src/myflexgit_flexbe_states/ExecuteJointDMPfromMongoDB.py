@@ -74,12 +74,7 @@ class ExeJointDMP(EventState):
 
 
 
-
-      
-
-    def execute(self, userdata):
-
-        #Read from mongo db 
+          #Read from mongo db 
      
         Logger.loginfo("Reading _id: {} DMP from mongoDB: ... \n ".format(userdata.entry_name))  
  
@@ -152,15 +147,21 @@ class ExeJointDMP(EventState):
                 if time.time()-timeout > 12:
                     return 'failed'
 
-            return 'continue'
 
         except Exception as e:
             # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
 			# Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
             Logger.loginfo('Failed to send DMP:\n{}'.format(str(e)))
             self._error = True
-            return 'failed'      
+            return 'failed' 
+            
+      
 
+    def execute(self, userdata):
+
+      
+        
+        return 'continue'
 
 
 

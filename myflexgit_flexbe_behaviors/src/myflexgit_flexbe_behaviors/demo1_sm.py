@@ -77,7 +77,7 @@ class Demo1SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'value': 'True1', 'success': 'success'})
 
-			# x:409 y:141
+			# x:403 y:37
 			OperatableStateMachine.add('Move to point1',
 										CallJointTrap(max_vel=0.1, max_acl=0.1, namespace='panda_1'),
 										transitions={'continue': 'Grab object', 'failed': 'failed'},

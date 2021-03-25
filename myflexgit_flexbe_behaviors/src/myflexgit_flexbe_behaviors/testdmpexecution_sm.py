@@ -47,7 +47,7 @@ class TestDMPexecutionSM(Behavior):
 		# x:287 y:595, x:55 y:600
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.PA_start_joint_pos = [-1.31,-0.08,-0.21,-1.618,-0.103,1.68,0.97]
-		_state_machine.userdata.trj_name = 'test trj'
+		_state_machine.userdata.trj_name = 'breaking_object_test'
 		_state_machine.userdata.PA_pick_joint_pos = [0.14161578650850998, -1.5168914103295907, -2.1584001102049624, -1.8599657923756354, -1.8240628920282174, 3.4166442354520155, 0.7055232277431606]
 		_state_machine.userdata.hand_grab_positon = [0.6]
 		_state_machine.userdata.hand_release_positon = [0.1]
@@ -64,14 +64,14 @@ class TestDMPexecutionSM(Behavior):
 		with _state_machine:
 			# x:30 y:125
 			OperatableStateMachine.add('Clamp',
-										ActivateRaspiDigitalOuput(service_name=/obr_activate),
+										ActivateRaspiDigitalOuput(service_name='/obr_activate'),
 										transitions={'continue': 'Execute test DMP', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'value': 'True1', 'success': 'success'})
 
 			# x:267 y:92
 			OperatableStateMachine.add('Execute test DMP',
-										ExeJointDMP(time_scale=1, motion_timestep=0.01, robot_namespace='panda_2', max_vel=0.5, max_acl=0.5),
+										ExeJointDMP(time_scale=1, motion_timestep=0.01, robot_namespace='panda_2', max_vel=0.3, max_acl=0.3),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'entry_name': 'trj_name', 'success': 'success'})
