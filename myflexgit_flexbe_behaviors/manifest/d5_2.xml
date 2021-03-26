@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="D5_2">
+
+	<executable package_path="myflexgit_flexbe_behaviors.d5_2_sm" class="D5_2SM" />
+	<tagstring>mongodb, minjerk, q_hand</tagstring>
+	<author>Rok Pahic</author>
+	<date>Fri Mar 26 2021</date>
+	<description>
+		Video for D5_2, paraller atempt
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>
