@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from flexbe_states.wait_state import WaitState
+from myflexgit_flexbe_behaviors.testdmpexecution_sm import TestDMPexecutionSM
 from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
@@ -36,6 +37,7 @@ class D5_2SM(Behavior):
 		# parameters of this behavior
 
 		# references to used behaviors
+		self.add_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution')
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
@@ -57,9 +59,9 @@ class D5_2SM(Behavior):
 		_state_machine.userdata.FA = False
 		_state_machine.userdata.panda1_table_pick = 'panda_1_pick_up'
 		_state_machine.userdata.panda1_clamp_pick = 'panda_1_from_clamp'
-		_state_machine.userdata.panda1_clamp_release = 'panda_1_drop_down'
+		_state_machine.userdata.panda1_clamp_release = 'panda_1_drop_down1'
 		_state_machine.userdata.panda1_plastic_release = 'panda_1_throw_plastic'
-		_state_machine.userdata.panda1_waiting_point = 'panda_1_from_clamp'
+		_state_machine.userdata.panda1_waiting_point = 'holding_point_panda_1'
 		_state_machine.userdata.panda2_clamp_hold = 'panda_2_hold'
 		_state_machine.userdata.panda2_clamp_break_trj = 'breaking_object_n1'
 		_state_machine.userdata.panda2_clamp_retreat_trj = 'trj_umik_2'
@@ -103,7 +105,7 @@ class D5_2SM(Behavior):
 			OperatableStateMachine.add('Move to drop',
 										CallJointTrap(max_vel=0.2, max_acl=0.2, namespace='panda_1'),
 										transitions={'continue': 'Release object', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
 										remapping={'joints_data': 'joints_data_release', 'joint_values': 'joint_values'})
 
 			# x:847 y:369
@@ -116,7 +118,7 @@ class D5_2SM(Behavior):
 			# x:1126 y:236
 			OperatableStateMachine.add('Move to hold position',
 										CallJointTrap(max_vel=0.5, max_acl=0.5, namespace='panda_1'),
-										transitions={'continue': 'Rotate CLAMP down', 'failed': 'failed'},
+										transitions={'continue': 'TestDMPexecution', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'panda1_holding_values', 'joint_values': 'joint_values'})
 
@@ -126,6 +128,13 @@ class D5_2SM(Behavior):
 										transitions={'continue': 'Grab object', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'joints_for_table', 'joint_values': 'joint_values'})
+
+			# x:250 y:578
+			OperatableStateMachine.add('Open clamp',
+										ActivateRaspiDigitalOuput(service_name='/obr_activate'),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'value': 'FA', 'success': 'success'})
 
 			# x:726 y:40
 			OperatableStateMachine.add('Read clamp drop',
@@ -141,7 +150,7 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'entry_name': 'panda1_holding_pos', 'joints_data': 'panda1_holding_values'})
 
-			# x:994 y:498
+			# x:1083 y:473
 			OperatableStateMachine.add('Read panda 2 working point',
 										ReadFromMongo(),
 										transitions={'continue': 'Move to hold point', 'failed': 'failed'},
@@ -155,21 +164,28 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
-			# x:644 y:571
+			# x:928 y:565
 			OperatableStateMachine.add('Rotate CLAMP down',
 										ActivateRaspiDigitalOuput(service_name='/obr_rotate'),
 										transitions={'continue': 'Wait to PCB fall', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'value': 'TR', 'success': 'success'})
 
-			# x:318 y:569
+			# x:477 y:566
 			OperatableStateMachine.add('Rotate CLAMP up',
 										ActivateRaspiDigitalOuput(service_name='obr_rotate'),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'Open clamp', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'value': 'FA', 'success': 'success'})
 
-			# x:508 y:574
+			# x:1091 y:370
+			OperatableStateMachine.add('TestDMPexecution',
+										self.use_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution',
+											default_keys=['trj_name']),
+										transitions={'finished': 'Rotate CLAMP down', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+			# x:675 y:580
 			OperatableStateMachine.add('Wait to PCB fall',
 										WaitState(wait_time=3.0),
 										transitions={'done': 'Rotate CLAMP up'},
@@ -190,7 +206,7 @@ class D5_2SM(Behavior):
 			# x:40 y:46
 			OperatableStateMachine.add('Activate CLAMP air block ',
 										ActivateRaspiDigitalOuput(service_name='/obr_block2_ON'),
-										transitions={'continue': 'Read initial state', 'failed': 'failed'},
+										transitions={'continue': 'Open clamp', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'value': 'TR', 'success': 'success'})
 
@@ -201,6 +217,13 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
 										remapping={'joints_data': 'init_position', 'joint_values': 'joint_values'})
 
+			# x:217 y:24
+			OperatableStateMachine.add('Open clamp',
+										ActivateRaspiDigitalOuput(service_name='/obr_activate'),
+										transitions={'continue': 'Read initial state', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'value': 'FA', 'success': 'success'})
+
 			# x:867 y:47
 			OperatableStateMachine.add('Open hand',
 										MoveSoftHand(motion_duration=2, motion_timestep=0.1),
@@ -208,7 +231,7 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
-			# x:377 y:55
+			# x:390 y:56
 			OperatableStateMachine.add('Read initial state',
 										ReadFromMongo(),
 										transitions={'continue': 'Move Panda 1 to initial', 'failed': 'failed'},
