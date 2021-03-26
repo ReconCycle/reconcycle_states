@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from flexbe_states.wait_state import WaitState
+from myflexgit_flexbe_behaviors.testdmpexecution_sm import TestDMPexecutionSM
 from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
@@ -36,6 +37,7 @@ class D5_2SM(Behavior):
 		# parameters of this behavior
 
 		# references to used behaviors
+		self.add_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution')
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
@@ -58,9 +60,11 @@ class D5_2SM(Behavior):
 		_state_machine.userdata.panda1_table_pick = 'panda_1_pick_up'
 		_state_machine.userdata.panda1_clamp_pick = 'panda_1_from_clamp'
 		_state_machine.userdata.panda1_clamp_release = 'panda_1_drop_down'
-		_state_machine.userdata.panda1_plastic_release = 'panda_1_clamp_safe'
-		_state_machine.userdata.panda1_waiting_point = 'panda_1_init'
+		_state_machine.userdata.panda1_plastic_release = 'panda_1_throw_plastic'
+		_state_machine.userdata.panda1_waiting_point = 'panda_1_clamp_safe'
 		_state_machine.userdata.panda2_clamp_hold = 'panda_2_hold'
+		_state_machine.userdata.panda2_clamp_break_trj = 'breaking_object_n1'
+		_state_machine.userdata.panda2_clamp_retreat_trj = 'trj_umik_2'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -79,8 +83,8 @@ class D5_2SM(Behavior):
 										remapping={'value': 'TR', 'success': 'success'})
 
 
-		# x:49 y:588, x:660 y:238
-		_sm_cell_runing_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold'])
+		# x:49 y:588, x:571 y:251
+		_sm_cell_runing_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold', 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj'])
 
 		with _sm_cell_runing_1:
 			# x:102 y:36
@@ -97,10 +101,17 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'closed_hand_table', 'success': 'success'})
 
+			# x:829 y:569
+			OperatableStateMachine.add('Move to hold point',
+										CallJointTrap(max_vel=0.2, max_acl=0.2, namespace='panda_2'),
+										transitions={'continue': 'Rotate CLAMP down', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'joints_data': 'before_clamp', 'joint_values': 'joint_values'})
+
 			# x:1126 y:236
 			OperatableStateMachine.add('Move to hold position',
 										CallJointTrap(max_vel=0.5, max_acl=0.5, namespace='panda_1'),
-										transitions={'continue': 'Read panda 2 working point', 'failed': 'failed'},
+										transitions={'continue': 'TestDMPexecution', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'panda1_holding_values', 'joint_values': 'joint_values'})
 
@@ -125,10 +136,10 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'entry_name': 'panda1_holding_pos', 'joints_data': 'panda1_holding_values'})
 
-			# x:1100 y:331
+			# x:977 y:597
 			OperatableStateMachine.add('Read panda 2 working point',
 										ReadFromMongo(),
-										transitions={'continue': 'Rotate CLAMP down', 'failed': 'failed'},
+										transitions={'continue': 'Move to hold point', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'entry_name': 'panda2_clamp_hold', 'joints_data': 'before_clamp'})
 
@@ -139,7 +150,7 @@ class D5_2SM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
-			# x:755 y:619
+			# x:644 y:571
 			OperatableStateMachine.add('Rotate CLAMP down',
 										ActivateRaspiDigitalOuput(service_name='/obr_activate'),
 										transitions={'continue': 'Wait to PCB fall', 'failed': 'failed'},
@@ -152,6 +163,13 @@ class D5_2SM(Behavior):
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'value': 'FA', 'success': 'success'})
+
+			# x:1119 y:378
+			OperatableStateMachine.add('TestDMPexecution',
+										self.use_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution',
+											default_keys=['trj_name']),
+										transitions={'finished': 'Read panda 2 working point', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:508 y:574
 			OperatableStateMachine.add('Wait to PCB fall',
@@ -202,21 +220,21 @@ class D5_2SM(Behavior):
 
 
 		with _state_machine:
-			# x:76 y:60
+			# x:112 y:39
 			OperatableStateMachine.add('Cell init',
 										_sm_cell_init_2,
 										transitions={'finished': 'Cell runing', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA'})
 
-			# x:268 y:50
+			# x:108 y:289
 			OperatableStateMachine.add('Cell runing',
 										_sm_cell_runing_1,
 										transitions={'finished': 'Cell shotdown', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA', 'closed_hand_table': 'closed_hand_table', 'closed_hand_clamp': 'closed_hand_clamp', 'pos_table': 'panda1_table_pick', 'clamp_release': 'panda1_clamp_release', 'clamp_pick': 'panda1_clamp_pick', 'drop_plastic': 'panda1_plastic_release', 'panda1_holding_pos': 'panda1_waiting_point', 'panda2_clamp_hold': 'panda2_clamp_hold'})
+										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA', 'closed_hand_table': 'closed_hand_table', 'closed_hand_clamp': 'closed_hand_clamp', 'pos_table': 'panda1_table_pick', 'clamp_release': 'panda1_clamp_release', 'clamp_pick': 'panda1_clamp_pick', 'drop_plastic': 'panda1_plastic_release', 'panda1_holding_pos': 'panda1_waiting_point', 'panda2_clamp_hold': 'panda2_clamp_hold', 'panda2_clamp_break_trj': 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj': 'panda2_clamp_retreat_trj'})
 
-			# x:477 y:58
+			# x:77 y:542
 			OperatableStateMachine.add('Cell shotdown',
 										_sm_cell_shotdown_0,
 										transitions={'finished': 'finished', 'failed': 'failed'},
