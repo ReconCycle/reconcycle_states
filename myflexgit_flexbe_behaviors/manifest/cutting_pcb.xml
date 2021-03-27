@@ -35,6 +35,13 @@
 
 		<param type="text" name="cutter_service" default="'/cutter_activate" label="cutter_service" hint="Sets the cutter_service name" />
 
+		<param type="text" name="vacuum_service" default="'/Panda2Vaccum'" label="vacuum_service" hint="Sets the vacuum_service name" />
+
+		<param type="numeric" name="vaccum_time" default="3" label="vaccum_time" hint="Sets the vaccum_time">
+			<min value="1" />
+			<max value="10" />
+		</param>
+
 	</params>
 
 
