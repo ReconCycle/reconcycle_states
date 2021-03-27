@@ -12,12 +12,11 @@
 
 
 	<!-- Contained Behaviors -->
-	<contains name="Test DMP execution" />
 
 	<!-- Available Parameters -->
 	<params>
 
-		<param type="text" name="clamp_service_name" default="'obr_activate'" label="clamp_service_name" hint="Sets the clamp_service_name" />
+		<param type="text" name="clamp_service_name" default="'/obr_activate'" label="clamp_service_name" hint="Sets the clamp_service_name" />
 
 		<param type="numeric" name="max_acl" default="0.3" label="max_acl" hint="Sets the max_acl">
 			<min value="0" />

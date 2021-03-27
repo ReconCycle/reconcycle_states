@@ -53,22 +53,16 @@ class PickplasticfromclampSM(Behavior):
 
 
 	def create(self):
-		# x:1121 y:485, x:723 y:338
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['object_table_location_name', 'clamp_release_location_name', 'clamp_waiting_location_name', 'closed_hand_table'])
+		# x:1121 y:485, x:701 y:512
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['clamp_waiting_location_name', 'closed_hand_clamp', 'clamp_pick_location_name', 'clamp_above_location_name', 'clamp_above_location_name'])
 		_state_machine.userdata.TR = True
-		_state_machine.userdata.panda1_init_position = 'panda_1_init'
 		_state_machine.userdata.open_hand = [0.1]
-		_state_machine.userdata.closed_hand_table = [0.6]
 		_state_machine.userdata.closed_hand_clamp = [0.84]
 		_state_machine.userdata.FA = False
-		_state_machine.userdata.object_table_location_name = 'panda_1_pick_up'
-		_state_machine.userdata.panda1_clamp_pick = 'panda_1_from_clamp'
-		_state_machine.userdata.clamp_release_location_name = 'panda_1_drop_down1'
-		_state_machine.userdata.panda1_plastic_release = 'panda_1_throw_plastic'
+		_state_machine.userdata.clamp_pick_location_name = 'panda_1_from_clamp'
+		_state_machine.userdata.clamp_above_location_name = 'panda_1_drop_down1'
+		_state_machine.userdata.plastic_bin_location_name = 'panda_1_throw_plastic'
 		_state_machine.userdata.clamp_waiting_location_name = 'holding_point_panda_1'
-		_state_machine.userdata.panda2_clamp_hold = 'panda_2_hold'
-		_state_machine.userdata.panda2_clamp_break_trj = 'breaking_object_n1'
-		_state_machine.userdata.panda2_clamp_retreat_trj = 'trj_umik_2'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -76,9 +70,9 @@ class PickplasticfromclampSM(Behavior):
 		# [/MANUAL_CREATE]
 
 		# x:30 y:365, x:130 y:365
-		_sm_put_object_in_clamp_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_put_plastic_in_bin_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_put_object_in_clamp_0:
+		with _sm_put_plastic_in_bin_0:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -95,9 +89,9 @@ class PickplasticfromclampSM(Behavior):
 
 
 		# x:30 y:365, x:130 y:365
-		_sm_pick_object_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_move_to_safe_spot_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_pick_object_1:
+		with _sm_move_to_safe_spot_1:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -114,9 +108,47 @@ class PickplasticfromclampSM(Behavior):
 
 
 		# x:30 y:365, x:130 y:365
-		_sm_move_to_safe_spot_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_move_over_clamp_2_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_move_to_safe_spot_2:
+		with _sm_move_over_clamp_2_2:
+			# x:182 y:50
+			OperatableStateMachine.add('Read robot position',
+										ReadFromMongo(),
+										transitions={'continue': 'Move to robot position', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'entry_name': 'position_name', 'joints_data': 'joints_positions'})
+
+			# x:500 y:117
+			OperatableStateMachine.add('Move to robot position',
+										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
+
+
+		# x:30 y:365, x:130 y:365
+		_sm_move_over_clamp_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+
+		with _sm_move_over_clamp_3:
+			# x:182 y:50
+			OperatableStateMachine.add('Read robot position',
+										ReadFromMongo(),
+										transitions={'continue': 'Move to robot position', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'entry_name': 'position_name', 'joints_data': 'joints_positions'})
+
+			# x:500 y:117
+			OperatableStateMachine.add('Move to robot position',
+										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
+
+
+		# x:30 y:365, x:130 y:365
+		_sm_move_in_clamp_4 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+
+		with _sm_move_in_clamp_4:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -133,9 +165,9 @@ class PickplasticfromclampSM(Behavior):
 
 
 		# x:49 y:588, x:571 y:251
-		_sm_cell_runing_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold', 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj'])
+		_sm_cell_runing_5 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold', 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj'])
 
-		with _sm_cell_runing_3:
+		with _sm_cell_runing_5:
 			# x:102 y:36
 			OperatableStateMachine.add('Read table pick position',
 										ReadFromMongo(),
@@ -249,58 +281,72 @@ class PickplasticfromclampSM(Behavior):
 
 
 		with _state_machine:
-			# x:114 y:44
-			OperatableStateMachine.add('Release object_2',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'Pick object', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
-
-			# x:1162 y:40
-			OperatableStateMachine.add('Close clamp',
+			# x:94 y:57
+			OperatableStateMachine.add('Open clamp',
 										ActivateRaspiDigitalOuput(service_name=self.clamp_service_name),
-										transitions={'continue': 'Move to safe spot', 'failed': 'failed'},
+										transitions={'continue': 'Release hand', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'value': 'TR', 'success': 'success'})
+										remapping={'value': 'FA', 'success': 'success'})
 
-			# x:580 y:23
+			# x:527 y:137
 			OperatableStateMachine.add('Grab object',
 										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'Put object in clamp', 'failed': 'failed'},
+										transitions={'continue': 'Move over clamp_2', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'goal_hand_pos': 'closed_hand_table', 'success': 'success'})
+										remapping={'goal_hand_pos': 'closed_hand_clamp', 'success': 'success'})
+
+			# x:459 y:12
+			OperatableStateMachine.add('Move in clamp',
+										_sm_move_in_clamp_4,
+										transitions={'finished': 'Grab object', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'position_name': 'clamp_pick_location_name'})
+
+			# x:284 y:40
+			OperatableStateMachine.add('Move over clamp',
+										_sm_move_over_clamp_3,
+										transitions={'finished': 'Move in clamp', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'position_name': 'clamp_above_location_name'})
+
+			# x:713 y:123
+			OperatableStateMachine.add('Move over clamp_2',
+										_sm_move_over_clamp_2_2,
+										transitions={'finished': 'Put plastic in bin', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'position_name': 'clamp_above_location_name'})
 
 			# x:1145 y:202
 			OperatableStateMachine.add('Move to safe spot',
-										_sm_move_to_safe_spot_2,
+										_sm_move_to_safe_spot_1,
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'clamp_waiting_location_name'})
 
-			# x:340 y:28
-			OperatableStateMachine.add('Pick object',
-										_sm_pick_object_1,
-										transitions={'finished': 'Grab object', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'position_name': 'object_table_location_name'})
-
 			# x:748 y:21
-			OperatableStateMachine.add('Put object in clamp',
-										_sm_put_object_in_clamp_0,
+			OperatableStateMachine.add('Put plastic in bin',
+										_sm_put_plastic_in_bin_0,
 										transitions={'finished': 'Release object', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'position_name': 'clamp_release_location_name'})
+										remapping={'position_name': 'plastic_bin_location_name'})
+
+			# x:175 y:169
+			OperatableStateMachine.add('Release hand',
+										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+										transitions={'continue': 'Move over clamp', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
 			# x:931 y:28
 			OperatableStateMachine.add('Release object',
 										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
-										transitions={'continue': 'Close clamp', 'failed': 'failed'},
+										transitions={'continue': 'Move to safe spot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
 			# x:108 y:289
 			OperatableStateMachine.add('Cell runing',
-										_sm_cell_runing_3,
+										_sm_cell_runing_5,
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA', 'closed_hand_table': 'closed_hand_table', 'closed_hand_clamp': 'closed_hand_clamp', 'pos_table': 'panda1_table_pick', 'clamp_release': 'panda1_clamp_release', 'clamp_pick': 'panda1_clamp_pick', 'drop_plastic': 'panda1_plastic_release', 'panda1_holding_pos': 'panda1_waiting_point', 'panda2_clamp_hold': 'panda2_clamp_hold', 'panda2_clamp_break_trj': 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj': 'panda2_clamp_retreat_trj'})
