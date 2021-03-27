@@ -9,6 +9,9 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from flexbe_states.wait_state import WaitState
+from myflexgit_flexbe_behaviors.change_tool_on_robot_sm import ChangetoolonrobotSM
+from myflexgit_flexbe_behaviors.cutting_pcb_sm import CuttingPCBSM
+from myflexgit_flexbe_behaviors.pick_plastic_from_clamp_sm import PickplasticfromclampSM
 from myflexgit_flexbe_behaviors.putt_object_in_clamp_sm import PuttobjectinclampSM
 from myflexgit_flexbe_behaviors.test_dmp_execution_sm import TestDMPexecutionSM
 from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
@@ -39,6 +42,10 @@ class D5_2SM(Behavior):
 		self.add_parameter('tray_service_name', '/clamping_tray')
 
 		# references to used behaviors
+		self.add_behavior(CuttingPCBSM, 'Cell runing/Paralel serving cutter and clamp/Cutting PCB')
+		self.add_behavior(PuttobjectinclampSM, 'Cell runing/Paralel serving cutter and clamp/Putt object in clamp')
+		self.add_behavior(ChangetoolonrobotSM, 'Cell runing/Paralel tool change and plastic drop/Change tool on robot')
+		self.add_behavior(PickplasticfromclampSM, 'Cell runing/Paralel tool change and plastic drop/Plastic Drop/Pick plastic from clamp')
 		self.add_behavior(PuttobjectinclampSM, 'Cell runing/Putt object in clamp')
 		self.add_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution')
 
@@ -86,7 +93,7 @@ class D5_2SM(Behavior):
 										remapping={'value': 'TR', 'success': 'success'})
 
 
-		# x:65 y:517, x:130 y:365
+		# x:30 y:365, x:130 y:365
 		_sm_throw_pcb_from_plastic_1 = OperatableStateMachine(outcomes=['continue', 'failed'], input_keys=['FA', 'TR'])
 
 		with _sm_throw_pcb_from_plastic_1:
@@ -144,10 +151,77 @@ class D5_2SM(Behavior):
 										remapping={'value': 'FA', 'success': 'success'})
 
 
-		# x:49 y:588, x:571 y:251
-		_sm_cell_runing_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold', 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj'])
+		# x:30 y:365, x:130 y:365
+		_sm_plastic_drop_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'FA'])
 
-		with _sm_cell_runing_2:
+		with _sm_plastic_drop_2:
+			# x:65 y:119
+			OperatableStateMachine.add('Throw PCB from plastic',
+										_sm_throw_pcb_from_plastic_1,
+										transitions={'continue': 'Pick plastic from clamp', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'FA': 'FA', 'TR': 'TR'})
+
+			# x:243 y:238
+			OperatableStateMachine.add('Pick plastic from clamp',
+										self.use_behavior(PickplasticfromclampSM, 'Cell runing/Paralel tool change and plastic drop/Plastic Drop/Pick plastic from clamp',
+											default_keys=['clamp_waiting_location_name','closed_hand_clamp','clamp_pick_location_name','clamp_above_location_name']),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+
+		# x:30 y:365, x:130 y:365, x:230 y:365, x:330 y:365, x:430 y:365, x:530 y:365
+		_sm_paralel_tool_change_and_plastic_drop_3 = ConcurrencyContainer(outcomes=['finished', 'failed'], input_keys=['TR', 'FA'], conditions=[
+										('finished', [('Plastic Drop', 'finished')]),
+										('failed', [('Plastic Drop', 'failed')]),
+										('finished', [('Change tool on robot', 'finished')]),
+										('failed', [('Change tool on robot', 'failed')])
+										])
+
+		with _sm_paralel_tool_change_and_plastic_drop_3:
+			# x:67 y:152
+			OperatableStateMachine.add('Plastic Drop',
+										_sm_plastic_drop_2,
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'TR': 'TR', 'FA': 'FA'})
+
+			# x:270 y:191
+			OperatableStateMachine.add('Change tool on robot',
+										self.use_behavior(ChangetoolonrobotSM, 'Cell runing/Paralel tool change and plastic drop/Change tool on robot',
+											default_keys=['tool_drop_location_name','tool_take_location_name','before_drop_location_name','after_take_location_name']),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+
+		# x:30 y:365, x:130 y:365, x:230 y:365, x:330 y:365, x:436 y:370, x:530 y:365
+		_sm_paralel_serving_cutter_and_clamp_4 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
+										('finished', [('Cutting PCB', 'finished')]),
+										('failed', [('Cutting PCB', 'failed')]),
+										('finished', [('Putt object in clamp', 'finished')]),
+										('failed', [('Putt object in clamp', 'failed')])
+										])
+
+		with _sm_paralel_serving_cutter_and_clamp_4:
+			# x:404 y:189
+			OperatableStateMachine.add('Putt object in clamp',
+										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Paralel serving cutter and clamp/Putt object in clamp',
+											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table']),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+			# x:66 y:145
+			OperatableStateMachine.add('Cutting PCB',
+										self.use_behavior(CuttingPCBSM, 'Cell runing/Paralel serving cutter and clamp/Cutting PCB',
+											default_keys=['PCB_location_name','simulate_cutter','battery_location_name']),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+
+		# x:49 y:588, x:571 y:251
+		_sm_cell_runing_5 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA', 'closed_hand_table', 'closed_hand_clamp', 'pos_table', 'clamp_release', 'clamp_pick', 'drop_plastic', 'panda1_holding_pos', 'panda2_clamp_hold', 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj'])
+
+		with _sm_cell_runing_5:
 			# x:494 y:68
 			OperatableStateMachine.add('Putt object in clamp',
 										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Putt object in clamp',
@@ -155,24 +229,30 @@ class D5_2SM(Behavior):
 										transitions={'finished': 'TestDMPexecution', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
+			# x:671 y:387
+			OperatableStateMachine.add('Paralel tool change and plastic drop',
+										_sm_paralel_tool_change_and_plastic_drop_3,
+										transitions={'finished': 'Paralel serving cutter and clamp', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'TR': 'TR', 'FA': 'FA'})
+
 			# x:1017 y:107
 			OperatableStateMachine.add('TestDMPexecution',
 										self.use_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution'),
-										transitions={'finished': 'Throw PCB from plastic', 'failed': 'failed'},
+										transitions={'finished': 'Paralel tool change and plastic drop', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
-			# x:562 y:512
-			OperatableStateMachine.add('Throw PCB from plastic',
-										_sm_throw_pcb_from_plastic_1,
-										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'FA': 'FA', 'TR': 'TR'})
+			# x:80 y:424
+			OperatableStateMachine.add('Paralel serving cutter and clamp',
+										_sm_paralel_serving_cutter_and_clamp_4,
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 
 		# x:1175 y:68, x:27 y:668
-		_sm_cell_init_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA'])
+		_sm_cell_init_6 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA'])
 
-		with _sm_cell_init_3:
+		with _sm_cell_init_6:
 			# x:40 y:46
 			OperatableStateMachine.add('Activate CLAMP air block ',
 										ActivateRaspiDigitalOuput(service_name='/obr_block2_ON'),
@@ -213,14 +293,14 @@ class D5_2SM(Behavior):
 		with _state_machine:
 			# x:112 y:39
 			OperatableStateMachine.add('Cell init',
-										_sm_cell_init_3,
+										_sm_cell_init_6,
 										transitions={'finished': 'Cell runing', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA'})
 
 			# x:108 y:289
 			OperatableStateMachine.add('Cell runing',
-										_sm_cell_runing_2,
+										_sm_cell_runing_5,
 										transitions={'finished': 'Cell shotdown', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'TR': 'TR', 'panda1_init_position': 'panda1_init_position', 'open_hand': 'open_hand', 'FA': 'FA', 'closed_hand_table': 'closed_hand_table', 'closed_hand_clamp': 'closed_hand_clamp', 'pos_table': 'panda1_table_pick', 'clamp_release': 'panda1_clamp_release', 'clamp_pick': 'panda1_clamp_pick', 'drop_plastic': 'panda1_plastic_release', 'panda1_holding_pos': 'panda1_waiting_point', 'panda2_clamp_hold': 'panda2_clamp_hold', 'panda2_clamp_break_trj': 'panda2_clamp_break_trj', 'panda2_clamp_retreat_trj': 'panda2_clamp_retreat_trj'})
