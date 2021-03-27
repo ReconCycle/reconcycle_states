@@ -54,7 +54,7 @@ class PickplasticfromclampSM(Behavior):
 
 	def create(self):
 		# x:1121 y:485, x:701 y:512
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['clamp_waiting_location_name', 'closed_hand_clamp', 'clamp_pick_location_name', 'clamp_above_location_name', 'clamp_above_location_name'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['clamp_waiting_location_name', 'closed_hand_clamp', 'clamp_pick_location_name', 'clamp_above_location_name'])
 		_state_machine.userdata.TR = True
 		_state_machine.userdata.open_hand = [0.1]
 		_state_machine.userdata.closed_hand_clamp = [0.84]

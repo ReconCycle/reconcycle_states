@@ -61,15 +61,15 @@ class CuttingPCBSM(Behavior):
 
 	def create(self):
 		# x:21 y:679, x:267 y:395
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['PCB_location_name', 'PCB_location_name', 'simulate_cutter'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['PCB_location_name', 'simulate_cutter', 'battery_location_name'])
 		_state_machine.userdata.TR = True
 		_state_machine.userdata.FA = False
-		_state_machine.userdata.PCB_location_name = 'panda2_pcb'
-		_state_machine.userdata.battery_location_name = 'panda2_battery'
+		_state_machine.userdata.PCB_location_name = 'panda_2_pcb_location'
+		_state_machine.userdata.battery_location_name = 'panda_2_battery_pick'
 		_state_machine.userdata.tray_safe_position_name = 'panda_2_beffore_tray'
-		_state_machine.userdata.cutter_safe_position_name = 'panda_2_beffore_cutter'
-		_state_machine.userdata.cutter_drop_position_name = 'panda_2_in_cutter'
-		_state_machine.userdata.battery_drop_position_name = 'panda_2_battery_drop'
+		_state_machine.userdata.cutter_safe_position_name = 'panda_2_battery_aim'
+		_state_machine.userdata.cutter_drop_position_name = 'panda_2_cutter'
+		_state_machine.userdata.battery_drop_position_name = 'panda_2_drop_battery'
 		_state_machine.userdata.simulate_cutter = True
 
 		# Additional creation code can be added inside the following tags
