@@ -170,22 +170,14 @@ class D5_2SM(Behavior):
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 
-		# x:30 y:365, x:130 y:365, x:230 y:365, x:330 y:365, x:430 y:365, x:530 y:365
+		# x:30 y:365, x:130 y:365, x:723 y:363, x:330 y:365, x:430 y:365, x:530 y:365
 		_sm_paralel_tool_change_and_plastic_drop_3 = ConcurrencyContainer(outcomes=['finished', 'failed'], input_keys=['TR', 'FA'], conditions=[
-										('finished', [('Plastic Drop', 'finished')]),
+										('finished', [('Plastic Drop', 'finished'), ('Change tool on robot', 'finished')]),
 										('failed', [('Plastic Drop', 'failed')]),
-										('finished', [('Change tool on robot', 'finished')]),
 										('failed', [('Change tool on robot', 'failed')])
 										])
 
 		with _sm_paralel_tool_change_and_plastic_drop_3:
-			# x:67 y:152
-			OperatableStateMachine.add('Plastic Drop',
-										_sm_plastic_drop_2,
-										transitions={'finished': 'finished', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'TR': 'TR', 'FA': 'FA'})
-
 			# x:270 y:191
 			OperatableStateMachine.add('Change tool on robot',
 										self.use_behavior(ChangetoolonrobotSM, 'Cell runing/Paralel tool change and plastic drop/Change tool on robot',
@@ -193,27 +185,32 @@ class D5_2SM(Behavior):
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
+			# x:67 y:152
+			OperatableStateMachine.add('Plastic Drop',
+										_sm_plastic_drop_2,
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'TR': 'TR', 'FA': 'FA'})
 
-		# x:30 y:365, x:130 y:365, x:230 y:365, x:330 y:365, x:436 y:370, x:530 y:365
+
+		# x:30 y:365, x:130 y:365, x:558 y:418, x:330 y:365, x:436 y:370, x:530 y:365
 		_sm_paralel_serving_cutter_and_clamp_4 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
-										('finished', [('Cutting PCB', 'finished')]),
-										('failed', [('Cutting PCB', 'failed')]),
-										('finished', [('Putt object in clamp', 'finished')]),
-										('failed', [('Putt object in clamp', 'failed')])
+										('finished', [('Cutting PCB', 'finished'), ('Putt object in clamp', 'finished')]),
+										('failed', [('Cutting PCB', 'failed'), ('Putt object in clamp', 'failed')])
 										])
 
 		with _sm_paralel_serving_cutter_and_clamp_4:
-			# x:404 y:189
-			OperatableStateMachine.add('Putt object in clamp',
-										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Paralel serving cutter and clamp/Putt object in clamp',
-											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table']),
-										transitions={'finished': 'finished', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
-
 			# x:66 y:145
 			OperatableStateMachine.add('Cutting PCB',
 										self.use_behavior(CuttingPCBSM, 'Cell runing/Paralel serving cutter and clamp/Cutting PCB',
 											default_keys=['PCB_location_name','simulate_cutter','battery_location_name']),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+			# x:404 y:189
+			OperatableStateMachine.add('Putt object in clamp',
+										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Paralel serving cutter and clamp/Putt object in clamp',
+											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table']),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 

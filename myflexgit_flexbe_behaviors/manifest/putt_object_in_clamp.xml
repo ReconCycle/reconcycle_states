@@ -18,14 +18,14 @@
 
 		<param type="text" name="clamp_service_name" default="/obr_activate" label="clamp_service_name" hint="Sets the clamp_service_name" />
 
-		<param type="numeric" name="max_acl" default="0.3" label="max_acl" hint="Sets the max_acl">
+		<param type="numeric" name="max_acl" default="0.5" label="max_acl" hint="Sets the max_acl">
 			<min value="0" />
 			<max value="1" />
 		</param>
 
 		<param type="text" name="namespace" default="panda_1" label="namespace" hint="Sets the namespace" />
 
-		<param type="numeric" name="max_vel" default="0.3" label="max_vel" hint="Sets the max_vel">
+		<param type="numeric" name="max_vel" default="0.6" label="max_vel" hint="Sets the max_vel">
 			<min value="0" />
 			<max value="1" />
 		</param>

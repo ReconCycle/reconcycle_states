@@ -14,8 +14,8 @@
 	<!-- Contained Behaviors -->
 	<contains name="Putt object in clamp" />
 	<contains name="Cutting PCB" />
-	<contains name="Pick plastic from clamp" />
 	<contains name="Change tool on robot" />
+	<contains name="Pick plastic from clamp" />
 	<contains name="Breaking object" />
 
 	<!-- Available Parameters -->
