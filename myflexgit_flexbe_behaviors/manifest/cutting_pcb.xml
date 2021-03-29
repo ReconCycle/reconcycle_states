@@ -16,7 +16,7 @@
 	<!-- Available Parameters -->
 	<params>
 
-		<param type="text" name="robot_name_space" default="'panda_2'" label="robot_name_space" hint="Sets the robot_name_space" />
+		<param type="text" name="namespace" default="panda_2" label="namespace" hint="Sets the namespace" />
 
 		<param type="numeric" name="max_vel" default="0.2" label="max_vel" hint="Sets the max_vel">
 			<min value="0" />
@@ -33,11 +33,11 @@
 			<max value="10" />
 		</param>
 
-		<param type="text" name="cutter_service" default="'/cutter_activate" label="cutter_service" hint="Sets the cutter_service name" />
+		<param type="text" name="cutter_service" default="/cutter_activate" label="cutter_service" hint="Sets the cutter_service name" />
 
-		<param type="text" name="vacuum_service" default="'/Panda2Vaccum'" label="vacuum_service" hint="Sets the vacuum_service name" />
+		<param type="text" name="vacuum_service" default="/Panda2Vacuum" label="vacuum_service" hint="Sets the vacuum_service name" />
 
-		<param type="numeric" name="vaccum_time" default="3" label="vaccum_time" hint="Sets the vaccum_time">
+		<param type="numeric" name="vacuum_time" default="3" label="vacuum_time" hint="Sets the vacuum_time">
 			<min value="1" />
 			<max value="10" />
 		</param>

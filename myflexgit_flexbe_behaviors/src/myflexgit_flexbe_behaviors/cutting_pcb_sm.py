@@ -34,13 +34,13 @@ class CuttingPCBSM(Behavior):
 		self.name = 'Cutting PCB'
 
 		# parameters of this behavior
-		self.add_parameter('robot_name_space', ''panda_2'')
+		self.add_parameter('namespace', 'panda_2')
 		self.add_parameter('max_vel', 0.2)
 		self.add_parameter('max_acl', 0.2)
 		self.add_parameter('cutting_time', 6)
-		self.add_parameter('cutter_service', ''/cutter_activate')
-		self.add_parameter('vacuum_service', ''/Panda2Vaccum'')
-		self.add_parameter('vaccum_time', 3)
+		self.add_parameter('cutter_service', '/cutter_activate')
+		self.add_parameter('vacuum_service', '/Panda2Vacuum')
+		self.add_parameter('vacuum_time', 3)
 
 		# references to used behaviors
 

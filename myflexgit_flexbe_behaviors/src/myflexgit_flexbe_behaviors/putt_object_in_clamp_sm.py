@@ -33,9 +33,9 @@ class PuttobjectinclampSM(Behavior):
 		self.name = 'Putt object in clamp'
 
 		# parameters of this behavior
-		self.add_parameter('clamp_service_name', ''/obr_activate'')
+		self.add_parameter('clamp_service_name', '/obr_activate')
 		self.add_parameter('max_acl', 0.3)
-		self.add_parameter('namespace', ''panda_1'')
+		self.add_parameter('namespace', 'panda_1')
 		self.add_parameter('max_vel', 0.3)
 
 		# references to used behaviors

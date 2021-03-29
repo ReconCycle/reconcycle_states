@@ -9,11 +9,11 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from flexbe_states.wait_state import WaitState
+from myflexgit_flexbe_behaviors.breaking_object_sm import BreakingobjectSM
 from myflexgit_flexbe_behaviors.change_tool_on_robot_sm import ChangetoolonrobotSM
 from myflexgit_flexbe_behaviors.cutting_pcb_sm import CuttingPCBSM
 from myflexgit_flexbe_behaviors.pick_plastic_from_clamp_sm import PickplasticfromclampSM
 from myflexgit_flexbe_behaviors.putt_object_in_clamp_sm import PuttobjectinclampSM
-from myflexgit_flexbe_behaviors.test_dmp_execution_sm import TestDMPexecutionSM
 from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
@@ -42,12 +42,12 @@ class D5_2SM(Behavior):
 		self.add_parameter('tray_service_name', '/clamping_tray')
 
 		# references to used behaviors
+		self.add_behavior(BreakingobjectSM, 'Cell runing/Breaking object')
 		self.add_behavior(CuttingPCBSM, 'Cell runing/Paralel serving cutter and clamp/Cutting PCB')
 		self.add_behavior(PuttobjectinclampSM, 'Cell runing/Paralel serving cutter and clamp/Putt object in clamp')
 		self.add_behavior(ChangetoolonrobotSM, 'Cell runing/Paralel tool change and plastic drop/Change tool on robot')
 		self.add_behavior(PickplasticfromclampSM, 'Cell runing/Paralel tool change and plastic drop/Plastic Drop/Pick plastic from clamp')
 		self.add_behavior(PuttobjectinclampSM, 'Cell runing/Putt object in clamp')
-		self.add_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution')
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
@@ -189,7 +189,7 @@ class D5_2SM(Behavior):
 			# x:270 y:191
 			OperatableStateMachine.add('Change tool on robot',
 										self.use_behavior(ChangetoolonrobotSM, 'Cell runing/Paralel tool change and plastic drop/Change tool on robot',
-											default_keys=['tool_drop_location_name','tool_take_location_name','before_drop_location_name','after_take_location_name']),
+											default_keys=['tool_drop_location_name','tool_take_location_name','before_drop_location_name','after_take_location_name','open_air_block']),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
@@ -226,7 +226,13 @@ class D5_2SM(Behavior):
 			OperatableStateMachine.add('Putt object in clamp',
 										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Putt object in clamp',
 											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table']),
-										transitions={'finished': 'TestDMPexecution', 'failed': 'failed'},
+										transitions={'finished': 'Breaking object', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+
+			# x:80 y:424
+			OperatableStateMachine.add('Paralel serving cutter and clamp',
+										_sm_paralel_serving_cutter_and_clamp_4,
+										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:671 y:387
@@ -236,16 +242,11 @@ class D5_2SM(Behavior):
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'TR': 'TR', 'FA': 'FA'})
 
-			# x:1017 y:107
-			OperatableStateMachine.add('TestDMPexecution',
-										self.use_behavior(TestDMPexecutionSM, 'Cell runing/TestDMPexecution'),
+			# x:760 y:182
+			OperatableStateMachine.add('Breaking object',
+										self.use_behavior(BreakingobjectSM, 'Cell runing/Breaking object',
+											default_keys=['trj_name']),
 										transitions={'finished': 'Paralel tool change and plastic drop', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
-
-			# x:80 y:424
-			OperatableStateMachine.add('Paralel serving cutter and clamp',
-										_sm_paralel_serving_cutter_and_clamp_4,
-										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 

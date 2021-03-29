@@ -32,9 +32,8 @@ class ChangetoolonrobotSM(Behavior):
 		self.name = 'Change tool on robot'
 
 		# parameters of this behavior
-		self.add_parameter('clamp_service_name', ''/obr_activate'')
 		self.add_parameter('max_acl', 0.3)
-		self.add_parameter('namespace', ''panda_2'')
+		self.add_parameter('namespace', 'panda_2')
 		self.add_parameter('max_vel', 0.3)
 		self.add_parameter('air_block_service_name', '/Panda2BlockON')
 		self.add_parameter('tool_unlock_service_name', '/Panda2ToolUnlock')
@@ -52,13 +51,14 @@ class ChangetoolonrobotSM(Behavior):
 
 	def create(self):
 		# x:84 y:259, x:723 y:338
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['tool_drop_location_name', 'tool_take_location_name', 'before_drop_location_name', 'after_take_location_name'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['tool_drop_location_name', 'tool_take_location_name', 'before_drop_location_name', 'after_take_location_name', 'open_air_block'])
 		_state_machine.userdata.TR = True
 		_state_machine.userdata.FA = False
 		_state_machine.userdata.tool_drop_location_name = 'panda_2_tool_change'
 		_state_machine.userdata.tool_take_location_name = 'panda_2_tool_change'
 		_state_machine.userdata.before_drop_location_name = 'panda_2_tool_change'
 		_state_machine.userdata.after_take_location_name = 'panda_2_tool_change'
+		_state_machine.userdata.open_air_block = True
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -235,7 +235,7 @@ class ChangetoolonrobotSM(Behavior):
 										ActivateRaspiDigitalOuput(service_name=self.air_block_service_name),
 										transitions={'continue': 'Move over take location_2', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'value': 'TR', 'success': 'success'})
+										remapping={'value': 'open_air_block', 'success': 'success'})
 
 			# x:900 y:44
 			OperatableStateMachine.add('Unlock tool',
