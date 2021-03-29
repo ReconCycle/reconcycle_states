@@ -246,7 +246,7 @@ class ChangetoolonrobotSM(Behavior):
 			# x:1126 y:530
 			OperatableStateMachine.add('Move over take location',
 										_sm_move_over_take_location_5,
-										transitions={'finished': 'Move to take ', 'failed': 'failed'},
+										transitions={'finished': 'Move to take _2', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'after_take_location_name'})
 
@@ -271,17 +271,17 @@ class ChangetoolonrobotSM(Behavior):
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'tool_drop_aim'})
 
-			# x:942 y:552
+			# x:754 y:633
 			OperatableStateMachine.add('Move to take ',
 										_sm_move_to_take__1,
-										transitions={'finished': 'Move to take _2', 'failed': 'failed'},
+										transitions={'finished': 'Lock tool', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'tool_take_location_name'})
 
-			# x:746 y:545
+			# x:925 y:533
 			OperatableStateMachine.add('Move to take _2',
 										_sm_move_to_take__2_0,
-										transitions={'finished': 'Lock tool', 'failed': 'failed'},
+										transitions={'finished': 'Move to take ', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'tool_take_aim'})
 

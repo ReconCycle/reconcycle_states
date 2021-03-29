@@ -170,7 +170,7 @@ class D5_2SM(Behavior):
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 
-		# x:30 y:365, x:130 y:365, x:723 y:363, x:330 y:365, x:430 y:365, x:530 y:365
+		# x:30 y:365, x:130 y:365, x:723 y:363, x:330 y:365, x:430 y:365
 		_sm_paralel_tool_change_and_plastic_drop_3 = ConcurrencyContainer(outcomes=['finished', 'failed'], input_keys=['TR', 'FA'], conditions=[
 										('finished', [('Plastic Drop', 'finished'), ('Change tool on robot', 'finished')]),
 										('failed', [('Plastic Drop', 'failed')]),
@@ -193,7 +193,7 @@ class D5_2SM(Behavior):
 										remapping={'TR': 'TR', 'FA': 'FA'})
 
 
-		# x:30 y:365, x:130 y:365, x:558 y:418, x:330 y:365, x:436 y:370, x:530 y:365
+		# x:30 y:365, x:130 y:365, x:558 y:418, x:330 y:365
 		_sm_paralel_serving_cutter_and_clamp_4 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
 										('finished', [('Cutting PCB', 'finished'), ('Putt object in clamp', 'finished')]),
 										('failed', [('Cutting PCB', 'failed'), ('Putt object in clamp', 'failed')])
