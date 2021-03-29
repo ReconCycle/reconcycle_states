@@ -50,15 +50,16 @@ class PuttobjectinclampSM(Behavior):
 
 
 	def create(self):
-		# x:1121 y:485, x:723 y:338
+		# x:1121 y:485, x:321 y:373
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['object_table_location_name', 'clamp_release_location_name', 'clamp_waiting_location_name', 'closed_hand_table'])
 		_state_machine.userdata.TR = True
 		_state_machine.userdata.open_hand = [0.1]
 		_state_machine.userdata.closed_hand_table = [0.6]
 		_state_machine.userdata.FA = False
 		_state_machine.userdata.object_table_location_name = 'panda_1_pick_up'
-		_state_machine.userdata.clamp_release_location_name = 'panda_1_drop_down1'
+		_state_machine.userdata.clamp_high_location_name = 'panda1_high_above_clamp'
 		_state_machine.userdata.clamp_waiting_location_name = 'holding_point_panda_1'
+		_state_machine.userdata.clamp_release_location_name = 'panda1_release_position'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -66,9 +67,9 @@ class PuttobjectinclampSM(Behavior):
 		# [/MANUAL_CREATE]
 
 		# x:30 y:365, x:130 y:365
-		_sm_put_object_in_clamp_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_put_object_in_clamp_2_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_put_object_in_clamp_0:
+		with _sm_put_object_in_clamp_2_0:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -85,9 +86,9 @@ class PuttobjectinclampSM(Behavior):
 
 
 		# x:30 y:365, x:130 y:365
-		_sm_pick_object_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_put_object_in_clamp_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_pick_object_1:
+		with _sm_put_object_in_clamp_1:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -104,9 +105,28 @@ class PuttobjectinclampSM(Behavior):
 
 
 		# x:30 y:365, x:130 y:365
-		_sm_move_to_safe_spot_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+		_sm_pick_object_2 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
 
-		with _sm_move_to_safe_spot_2:
+		with _sm_pick_object_2:
+			# x:182 y:50
+			OperatableStateMachine.add('Read robot position',
+										ReadFromMongo(),
+										transitions={'continue': 'Move to robot position', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'entry_name': 'position_name', 'joints_data': 'joints_positions'})
+
+			# x:500 y:117
+			OperatableStateMachine.add('Move to robot position',
+										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.High, 'failed': Autonomy.High},
+										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
+
+
+		# x:30 y:365, x:130 y:365
+		_sm_move_to_safe_spot_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['position_name'])
+
+		with _sm_move_to_safe_spot_3:
 			# x:182 y:50
 			OperatableStateMachine.add('Read robot position',
 										ReadFromMongo(),
@@ -131,30 +151,37 @@ class PuttobjectinclampSM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
 
-			# x:580 y:23
+			# x:517 y:20
 			OperatableStateMachine.add('Grab object',
 										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
 										transitions={'continue': 'Put object in clamp', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										autonomy={'continue': Autonomy.High, 'failed': Autonomy.High},
 										remapping={'goal_hand_pos': 'closed_hand_table', 'success': 'success'})
 
 			# x:1145 y:202
 			OperatableStateMachine.add('Move to safe spot',
-										_sm_move_to_safe_spot_2,
+										_sm_move_to_safe_spot_3,
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'clamp_waiting_location_name'})
 
 			# x:340 y:28
 			OperatableStateMachine.add('Pick object',
-										_sm_pick_object_1,
+										_sm_pick_object_2,
 										transitions={'finished': 'Grab object', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'object_table_location_name'})
 
-			# x:748 y:21
+			# x:690 y:29
 			OperatableStateMachine.add('Put object in clamp',
-										_sm_put_object_in_clamp_0,
+										_sm_put_object_in_clamp_1,
+										transitions={'finished': 'Put object in clamp_2', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'position_name': 'clamp_high_location_name'})
+
+			# x:690 y:97
+			OperatableStateMachine.add('Put object in clamp_2',
+										_sm_put_object_in_clamp_2_0,
 										transitions={'finished': 'Release object', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'clamp_release_location_name'})
