@@ -60,7 +60,7 @@ class PuttobjectinclampSM(Behavior):
 		_state_machine.userdata.object_table_location_name = 'panda_1_pick_up'
 		_state_machine.userdata.clamp_high_location_name = 'panda1_high_above_clamp'
 		_state_machine.userdata.clamp_waiting_location_name = 'holding_point_panda_1'
-		_state_machine.userdata.clamp_release_location_name = 'panda_1_drop_down1'
+		_state_machine.userdata.clamp_release_location_name = 'panda1_drop_down3'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]

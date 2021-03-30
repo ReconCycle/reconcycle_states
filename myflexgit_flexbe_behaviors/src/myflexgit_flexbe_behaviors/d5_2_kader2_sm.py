@@ -14,7 +14,6 @@ from myflexgit_flexbe_behaviors.change_tool_on_robot_sm import Changetoolonrobot
 from myflexgit_flexbe_behaviors.cutting_pcb_sm import CuttingPCBSM
 from myflexgit_flexbe_behaviors.pick_plastic_from_clamp_sm import PickplasticfromclampSM
 from myflexgit_flexbe_behaviors.putt_object_in_clamp_sm import PuttobjectinclampSM
-from myflexgit_flexbe_states.MoveSoftHand import MoveSoftHand
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
 from myflexgit_flexbe_states.read_from_mongodb import ReadFromMongo
@@ -28,15 +27,15 @@ from myflexgit_flexbe_states.read_from_mongodb import ReadFromMongo
 Created on Fri Mar 26 2021
 @author: Rok Pahic
 '''
-class D5_2SM(Behavior):
+class D5_2_kader2SM(Behavior):
 	'''
 	Video for D5_2, paraller atempt
 	'''
 
 
 	def __init__(self):
-		super(D5_2SM, self).__init__()
-		self.name = 'D5_2'
+		super(D5_2_kader2SM, self).__init__()
+		self.name = 'D5_2_kader2'
 
 		# parameters of this behavior
 		self.add_parameter('tray_service_name', '/clamping_tray')
@@ -251,40 +250,19 @@ class D5_2SM(Behavior):
 		_sm_cell_init_6 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['TR', 'panda1_init_position', 'open_hand', 'FA'])
 
 		with _sm_cell_init_6:
-			# x:40 y:46
-			OperatableStateMachine.add('Activate CLAMP air block ',
-										ActivateRaspiDigitalOuput(service_name='/obr_block2_ON'),
-										transitions={'continue': 'Open clamp', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'value': 'TR', 'success': 'success'})
-
-			# x:594 y:56
-			OperatableStateMachine.add('Move Panda 1 to initial',
-										CallJointTrap(max_vel=0.3, max_acl=0.3, namespace='/panda_1'),
-										transitions={'continue': 'Open hand', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
-										remapping={'joints_data': 'init_position', 'joint_values': 'joint_values'})
-
-			# x:217 y:24
-			OperatableStateMachine.add('Open clamp',
-										ActivateRaspiDigitalOuput(service_name='/obr_activate'),
-										transitions={'continue': 'Read initial state', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'value': 'FA', 'success': 'success'})
-
-			# x:867 y:47
-			OperatableStateMachine.add('Open hand',
-										MoveSoftHand(motion_duration=2, motion_timestep=0.1),
-										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})
-
 			# x:390 y:56
 			OperatableStateMachine.add('Read initial state',
 										ReadFromMongo(),
 										transitions={'continue': 'Move Panda 1 to initial', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'entry_name': 'panda1_init_position', 'joints_data': 'init_position'})
+
+			# x:594 y:56
+			OperatableStateMachine.add('Move Panda 1 to initial',
+										CallJointTrap(max_vel=0.3, max_acl=0.3, namespace='/panda_2'),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
+										remapping={'joints_data': 'init_position', 'joint_values': 'joint_values'})
 
 
 

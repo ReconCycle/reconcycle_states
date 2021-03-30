@@ -55,13 +55,13 @@ class ChangetoolonrobotSM(Behavior):
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['tool_drop_location_name', 'tool_take_location_name', 'before_drop_location_name', 'after_take_location_name', 'open_air_block'])
 		_state_machine.userdata.TR = True
 		_state_machine.userdata.FA = False
-		_state_machine.userdata.tool_drop_location_name = 'panda2_tool1_location'
-		_state_machine.userdata.tool_take_location_name = 'panda2_tool2_location'
+		_state_machine.userdata.tool_drop_location_name = 'panda2_tool1_location1'
+		_state_machine.userdata.tool_take_location_name = 'panda2_tool2_location1'
 		_state_machine.userdata.before_drop_location_name = 'panda2_tool1_above'
 		_state_machine.userdata.after_take_location_name = 'panda2_tool2_above'
-		_state_machine.userdata.open_air_block = False
-		_state_machine.userdata.tool_drop_aim = 'panda2_tool1_aim'
-		_state_machine.userdata.tool_take_aim = 'panda2_tool2_aim'
+		_state_machine.userdata.open_air_block = True
+		_state_machine.userdata.tool_drop_aim = 'panda2_tool1_aim1'
+		_state_machine.userdata.tool_take_aim = 'panda2_tool2_aim1'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -102,7 +102,7 @@ class ChangetoolonrobotSM(Behavior):
 			OperatableStateMachine.add('Move to robot position',
 										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
 
 
@@ -309,7 +309,7 @@ class ChangetoolonrobotSM(Behavior):
 			OperatableStateMachine.add('Wait to lock_2',
 										WaitState(wait_time=2),
 										transitions={'done': 'Open air block'},
-										autonomy={'done': Autonomy.Off})
+										autonomy={'done': Autonomy.Full})
 
 			# x:676 y:42
 			OperatableStateMachine.add('Close air block',
