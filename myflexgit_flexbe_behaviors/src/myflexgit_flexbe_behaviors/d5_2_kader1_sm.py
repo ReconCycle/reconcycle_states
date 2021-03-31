@@ -165,7 +165,8 @@ class D5_2_kader1SM(Behavior):
 			# x:243 y:238
 			OperatableStateMachine.add('Pick plastic from clamp',
 										self.use_behavior(PickplasticfromclampSM, 'Cell runing/Plastic Drop/Pick plastic from clamp',
-											default_keys=['clamp_waiting_location_name','closed_hand_clamp','clamp_pick_location_name','clamp_above_location_name']),
+											default_keys=['clamp_waiting_location_name','closed_hand_clamp','clamp_pick_location_name','clamp_above_location_name'],
+											parameters={'max_acl': 1, 'max_vel': 1, 'max_vel_contact': 0.6, 'max_acl_contact': 0.4}),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
@@ -183,7 +184,7 @@ class D5_2_kader1SM(Behavior):
 
 			# x:500 y:117
 			OperatableStateMachine.add('Move to robot position',
-										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace='panda_2'),
+										CallJointTrap(max_vel=1, max_acl=1, namespace='panda_2'),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
@@ -196,7 +197,8 @@ class D5_2_kader1SM(Behavior):
 			# x:494 y:68
 			OperatableStateMachine.add('Putt object in clamp',
 										self.use_behavior(PuttobjectinclampSM, 'Cell runing/Putt object in clamp',
-											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table']),
+											default_keys=['object_table_location_name','clamp_release_location_name','clamp_waiting_location_name','closed_hand_table'],
+											parameters={'max_acl': 1, 'max_vel': 1}),
 										transitions={'finished': 'Breaking object', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
@@ -224,7 +226,8 @@ class D5_2_kader1SM(Behavior):
 			# x:760 y:182
 			OperatableStateMachine.add('Breaking object',
 										self.use_behavior(BreakingobjectSM, 'Cell runing/Breaking object',
-											default_keys=['trj_name']),
+											default_keys=['trj_name'],
+											parameters={'max_vel': 0.7, 'max_acl': 0.7}),
 										transitions={'finished': 'Plastic Drop', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 

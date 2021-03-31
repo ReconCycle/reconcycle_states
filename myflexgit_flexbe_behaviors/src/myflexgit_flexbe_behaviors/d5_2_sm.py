@@ -193,10 +193,11 @@ class D5_2SM(Behavior):
 										remapping={'TR': 'TR', 'FA': 'FA'})
 
 
-		# x:30 y:365, x:130 y:365, x:558 y:418, x:330 y:365
+		# x:30 y:365, x:130 y:365, x:558 y:418, x:330 y:365, x:430 y:365
 		_sm_paralel_serving_cutter_and_clamp_4 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
 										('finished', [('Cutting PCB', 'finished'), ('Putt object in clamp', 'finished')]),
-										('failed', [('Cutting PCB', 'failed'), ('Putt object in clamp', 'failed')])
+										('failed', [('Cutting PCB', 'failed')]),
+										('failed', [('Putt object in clamp', 'failed')])
 										])
 
 		with _sm_paralel_serving_cutter_and_clamp_4:

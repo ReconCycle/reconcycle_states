@@ -230,7 +230,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Activate vacuum_2',
 										ActivateRaspiDigitalOuput(service_name=self.vacuum_service),
 										transitions={'continue': 'Vacuum timer_2', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'value': 'TR', 'success': 'success'})
 
 			# x:988 y:443
@@ -257,7 +257,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Deactivate vacuum_3_2',
 										ActivateRaspiDigitalOuput(service_name=self.vacuum_service),
 										transitions={'continue': 'Vacuum timer_3_2', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'value': 'FA', 'success': 'success'})
 
 			# x:562 y:646
@@ -306,7 +306,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Simulate cutter 2',
 										CheckConditionState(predicate=lambda x: x == True),
 										transitions={'true': 'Pick up battery', 'false': 'Activate cutter'},
-										autonomy={'true': Autonomy.Low, 'false': Autonomy.Low},
+										autonomy={'true': Autonomy.Full, 'false': Autonomy.Full},
 										remapping={'input_value': 'simulate_cutter'})
 
 			# x:741 y:37
@@ -331,7 +331,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Vacuum timer_3_2',
 										WaitState(wait_time=self.vacuum_time),
 										transitions={'done': 'Move to safe position before cutter_2'},
-										autonomy={'done': Autonomy.Low})
+										autonomy={'done': Autonomy.Full})
 
 			# x:899 y:381
 			OperatableStateMachine.add('Activate cutter',

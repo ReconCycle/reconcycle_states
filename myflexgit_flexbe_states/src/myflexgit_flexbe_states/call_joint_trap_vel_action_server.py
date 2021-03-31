@@ -41,7 +41,8 @@ class CallJointTrap(EventState):
 
 		# It may happen that the action client fails to send the action goal.
 
- 
+        self.max_vel = max_vel
+        self.max_acl = max_acl
             
     def on_enter(self, userdata):
 
@@ -50,7 +51,7 @@ class CallJointTrap(EventState):
         self.goal_joint = userdata.joints_data #JointState()
         joint = JointState()
         joint.position = self.goal_joint
-        goal = JointTrapVelGoal([joint], 0.3, 0.3)
+        goal = JointTrapVelGoal([joint], self.max_vel, self.max_acl)
 
         
         Logger.loginfo("Starting sending goal...")
