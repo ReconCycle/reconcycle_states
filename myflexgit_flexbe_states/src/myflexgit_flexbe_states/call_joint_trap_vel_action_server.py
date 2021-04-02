@@ -74,20 +74,28 @@ class CallJointTrap(EventState):
         try:
           
             
-            result = self._client.get_result(self._topic) 
-            if result == None:
+            #result = self._client.get_result(self._topic) 
+            if self._client.has_result(self._topic):
+                result = self._client.get_result(self._topic) 
+                Logger.loginfo("Result {}".format(result))
+                return 'success'
+
+            else:
+
+
+            #if result == None:
                 
                 feedback = self._client.get_feedback(self._topic)
                 Logger.loginfo("{}".format(feedback))
                 #time.sleep(0.5)
                 # 12 secs timeout
-                result = self._client.get_result(self._topic) 
-                if time.time()-self.timeout > 12:
-                    break
+                
+                #if time.time()-self.timeout > 12:
+                    #break
 
                 
-            Logger.loginfo("Result {}".format(result))
-            return 'continue'
+ 
+            
 
         except Exception as e:
             
