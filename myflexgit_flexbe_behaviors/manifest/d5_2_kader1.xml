@@ -22,16 +22,6 @@
 
 		<param type="text" name="tray_service_name" default="/clamping_tray" label="tray_service_name" hint="Sets the tray_service_name" />
 
-		<param type="numeric" name="max_vel" default="0.3" label="max_vel" hint="Sets the max_vel">
-			<min value="0" />
-			<max value="1" />
-		</param>
-
-		<param type="numeric" name="max_acl" default="0.3" label="max_acl" hint="Sets the max_acl">
-			<min value="0" />
-			<max value="1" />
-		</param>
-
 	</params>
 
 

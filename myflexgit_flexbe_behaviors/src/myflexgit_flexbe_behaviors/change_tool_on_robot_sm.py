@@ -59,7 +59,7 @@ class ChangetoolonrobotSM(Behavior):
 		_state_machine.userdata.tool_take_location_name = 'panda2_tool2_location1'
 		_state_machine.userdata.before_drop_location_name = 'panda2_tool1_above'
 		_state_machine.userdata.after_take_location_name = 'panda2_tool2_above'
-		_state_machine.userdata.open_air_block = True
+		_state_machine.userdata.open_air_block = False
 		_state_machine.userdata.tool_drop_aim = 'panda2_tool1_aim1'
 		_state_machine.userdata.tool_take_aim = 'panda2_tool2_aim1'
 
@@ -309,7 +309,7 @@ class ChangetoolonrobotSM(Behavior):
 			OperatableStateMachine.add('Wait to lock_2',
 										WaitState(wait_time=2),
 										transitions={'done': 'Open air block'},
-										autonomy={'done': Autonomy.Full})
+										autonomy={'done': Autonomy.Low})
 
 			# x:676 y:42
 			OperatableStateMachine.add('Close air block',

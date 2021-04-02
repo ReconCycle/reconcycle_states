@@ -35,9 +35,9 @@ class PuttobjectinclampSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('clamp_service_name', '/obr_activate')
-		self.add_parameter('max_acl', 0.5)
+		self.add_parameter('max_acl', 1)
 		self.add_parameter('namespace', 'panda_1')
-		self.add_parameter('max_vel', 0.6)
+		self.add_parameter('max_vel', 1)
 
 		# references to used behaviors
 
@@ -170,7 +170,7 @@ class PuttobjectinclampSM(Behavior):
 
 			# x:1134 y:25
 			OperatableStateMachine.add('wait to drop',
-										WaitState(wait_time=2),
+										WaitState(wait_time=1),
 										transitions={'done': 'Close clamp'},
 										autonomy={'done': Autonomy.Low})
 
