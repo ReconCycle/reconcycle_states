@@ -104,7 +104,7 @@ class D5_2_kader1SM(Behavior):
 
 			# x:500 y:117
 			OperatableStateMachine.add('Move to robot position',
-										CallJointTrap(max_vel=0.9, max_acl=0.9, namespace='panda_2'),
+										CallJointTrap(max_vel=1, max_acl=1, namespace='panda_2'),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
@@ -150,7 +150,7 @@ class D5_2_kader1SM(Behavior):
 
 			# x:497 y:28
 			OperatableStateMachine.add('Wait to get back ',
-										WaitState(wait_time=3.0),
+										WaitState(wait_time=2.0),
 										transitions={'done': 'Rotate CLAMP down'},
 										autonomy={'done': Autonomy.Low})
 
@@ -199,7 +199,8 @@ class D5_2_kader1SM(Behavior):
 			# x:30 y:97
 			OperatableStateMachine.add('Change tool on robot',
 										self.use_behavior(ChangetoolonrobotSM, 'Cell runing/Group/Change tool on robot',
-											default_keys=['tool_drop_location_name','tool_take_location_name','before_drop_location_name','after_take_location_name','open_air_block']),
+											default_keys=['tool_drop_location_name','tool_take_location_name','before_drop_location_name','after_take_location_name','open_air_block'],
+											parameters={'max_acl': 0.5, 'max_vel': 0.5}),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
@@ -239,7 +240,8 @@ class D5_2_kader1SM(Behavior):
 			# x:760 y:182
 			OperatableStateMachine.add('Breaking object',
 										self.use_behavior(BreakingobjectSM, 'Cell runing/Breaking object',
-											default_keys=['trj_name']),
+											default_keys=['trj_name'],
+											parameters={'max_vel': 0.7, 'max_acl': 0.7}),
 										transitions={'finished': 'Group', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
