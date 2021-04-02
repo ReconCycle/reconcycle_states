@@ -66,21 +66,23 @@ class CallJointTrap(EventState):
             self._error = True
             return 'failed'
 
+        self.timeout = time.time()
+
     def execute(self, userdata):
         
 
         try:
           
-            timeout = time.time()
+            
             result = self._client.get_result(self._topic) 
-            while result == None:
+            if result == None:
                 
                 feedback = self._client.get_feedback(self._topic)
                 Logger.loginfo("{}".format(feedback))
-                time.sleep(0.5)
+                #time.sleep(0.5)
                 # 12 secs timeout
                 result = self._client.get_result(self._topic) 
-                if time.time()-timeout > 12:
+                if time.time()-self.timeout > 12:
                     break
 
                 
