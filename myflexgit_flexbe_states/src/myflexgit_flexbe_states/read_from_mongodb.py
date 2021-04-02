@@ -7,6 +7,9 @@ from mongodb_store.message_store import MessageStoreProxy
 from flexbe_core import EventState, Logger
 from sensor_msgs.msg import JointState
 
+#for deblocking parallel execution in flexbe
+import threading
+
 class ReadFromMongo(EventState):
 
     '''
@@ -29,11 +32,19 @@ class ReadFromMongo(EventState):
 
         self.msg_store = MessageStoreProxy()
 
+
+    def read_from_mongodb(self):   
+
+        self.read_data= self.msg_store.query_named(str(self.entry_name), JointState._type)
+
     def execute(self, userdata):
         pos = JointState()
-        try:
-            data_from_db = self.msg_store.query_named(str(userdata.entry_name), JointState._type)
 
+        self.entry_name = userdata.entry_name
+        try:
+            #data_from_db = self.msg_store.query_named(str(userdata.entry_name), JointState._type)
+            threading.Thread(target=self.read_from_mongodb).start()
+            data_from_db = self.read_data
             position_data = list(data_from_db[0].position)
             Logger.loginfo("Position data read from DB: \n {}".format(position_data))      
 
