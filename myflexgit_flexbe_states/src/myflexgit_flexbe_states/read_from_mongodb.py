@@ -43,7 +43,9 @@ class ReadFromMongo(EventState):
         self.entry_name = userdata.entry_name
         try:
             #data_from_db = self.msg_store.query_named(str(userdata.entry_name), JointState._type)
-            threading.Thread(target=self.read_from_mongodb).start()
+            #threading.Thread(target=self.read_from_mongodb).start()
+            self.read_from_mongodb()
+
             data_from_db = self.read_data
             position_data = list(data_from_db[0].position)
             Logger.loginfo("Position data read from DB: \n {}".format(position_data))      

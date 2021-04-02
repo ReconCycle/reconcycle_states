@@ -78,7 +78,7 @@ class CallJointTrap(EventState):
             if self._client.has_result(self._topic):
                 result = self._client.get_result(self._topic) 
                 Logger.loginfo("Result {}".format(result))
-                return 'success'
+                return 'continue'
 
             else:
 
