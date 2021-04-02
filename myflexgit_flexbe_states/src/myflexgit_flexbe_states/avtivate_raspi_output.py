@@ -10,6 +10,8 @@ import time
 from digital_interface_msgs.msg import DigitalState
 from digital_interface_msgs.srv import PinStateWrite,PinStateWriteRequest
 
+#for deblocking parallel execution in flexbe
+import threading
 
 class ActivateRaspiDigitalOuput(EventState):
 
@@ -35,7 +37,10 @@ class ActivateRaspiDigitalOuput(EventState):
         #self._client = ProxyActionClient({self._topic: robot_module_msgs.msg.JointMinJerkAction}) # pass required clients as dict (topic: type)
      
         self._service_name = service_name
-   
+
+    def call_srv(self):
+
+        self.response = self._srv.call(self._service_name,self.state)
 
     def execute(self, userdata):
  
@@ -48,7 +53,7 @@ class ActivateRaspiDigitalOuput(EventState):
 
         state.value = userdata.value
      
-        
+        self.state=state
 
         Logger.loginfo("Set digital Output...")
 
@@ -56,7 +61,8 @@ class ActivateRaspiDigitalOuput(EventState):
 
         try:
             #Logger.loginfo("Goal sent: {}".format(str(userdata.goal_joint_pos)))
-            self._srv.call(self._service_name,state)
+            threading.Thread(target=self.call_srv).start()
+            #self._srv.call(self._service_name,state)
      
 
         except Exception as e:
@@ -80,18 +86,24 @@ if __name__ == '__main__':
 
     class userdata():
 
-        def __init__(self):
+        def __init__(self,value):
 
-            self.value=False
+            self.value=value
 
 
     rospy.init_node('test_node')
-    test_state= ActivateRaspiDigitalOuput('tool_changer_unlock')
+    test_state= ActivateRaspiDigitalOuput('/obr_activate')
     print('sleep')
     rospy.sleep(2)
     print('sleep')
-    user_test=userdata()
-    test_state.on_enter(user_test)
+    user_test=userdata(False)
+    #test_state.on_enter(user_test)
     test_state.execute(user_test)
     test_state.on_exit(user_test)
+    rospy.sleep(2)
+    user_test=userdata(True)
+    #test_state.on_enter(user_test)
+    test_state.execute(user_test)
+    test_state.on_exit(user_test)
+
     #rospy.spin()
