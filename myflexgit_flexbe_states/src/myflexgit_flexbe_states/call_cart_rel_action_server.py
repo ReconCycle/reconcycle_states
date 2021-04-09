@@ -50,9 +50,8 @@ class CallCartRel(EventState):
         relative_pose = PoseStamped(pose=Pose(position=Point(self.rel_move[0],self.rel_move[1],  self.rel_move[2]), orientation=Quaternion(0, 0, 0, 1)))
 
 
-        goal = CartLinTaskGoal()
-        goal.desired_travel_time=self.exe_time
-        goal.target_pose=[relative_pose.pose]
+    
+        goal=CartLinTaskGoal([relative_pose.pose],self.exe_time, None)
        
         Logger.loginfo("Starting sending goal to...")
         Logger.loginfo('\n{}'.format(str(self._topic)))
@@ -132,12 +131,12 @@ if __name__ == '__main__':
     #test_state=CallJointTrap(0.5,0.1,)
     
     usertest=userdata([0.1,0,0])
-    #test_state.on_enter(usertest)
+    test_state.on_enter(usertest)
     test_state.execute(usertest)
     test_state.on_exit(usertest)
 
     
     usertest=userdata([-0.1,0,0])
-    #test_state.on_enter(usertest)
+    test_state.on_enter(usertest)
     test_state.execute(usertest)
     test_state.on_exit(usertest)
