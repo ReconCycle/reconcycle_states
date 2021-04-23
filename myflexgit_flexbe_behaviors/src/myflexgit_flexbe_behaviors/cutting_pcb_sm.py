@@ -35,12 +35,14 @@ class CuttingPCBSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('namespace', 'panda_2')
-		self.add_parameter('max_vel', 0.2)
-		self.add_parameter('max_acl', 0.2)
+		self.add_parameter('max_vel', 0.6)
+		self.add_parameter('max_acl', 0.6)
 		self.add_parameter('cutting_time', 6)
 		self.add_parameter('cutter_service', '/cutter_activate')
 		self.add_parameter('vacuum_service', '/Panda2Vacuum')
-		self.add_parameter('vacuum_time', 3)
+		self.add_parameter('vacuum_time', 2)
+		self.add_parameter('max_vel_contact', 0.4)
+		self.add_parameter('max_acl_contact', 0.4)
 
 		# references to used behaviors
 
@@ -68,8 +70,8 @@ class CuttingPCBSM(Behavior):
 		_state_machine.userdata.battery_location_name = 'panda_2_battery_pick'
 		_state_machine.userdata.tray_safe_position_name = 'panda_2_beffore_tray'
 		_state_machine.userdata.cutter_safe_position_name = 'panda_2_battery_aim'
-		_state_machine.userdata.cutter_drop_position_name = 'panda_2_cutter'
-		_state_machine.userdata.battery_drop_position_name = 'panda_2_drop_battery'
+		_state_machine.userdata.cutter_drop_position_name = 'panda_2_cutter2'
+		_state_machine.userdata.battery_drop_position_name = 'panda_2_drop_battery2'
 		_state_machine.userdata.simulate_cutter = True
 
 		# Additional creation code can be added inside the following tags
@@ -90,7 +92,7 @@ class CuttingPCBSM(Behavior):
 
 			# x:500 y:117
 			OperatableStateMachine.add('Move to robot position',
-										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
+										CallJointTrap(max_vel=self.max_vel_contact, max_acl=self.max_acl_contact, namespace=self.namespace),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
@@ -130,7 +132,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Move to robot position',
 										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										autonomy={'continue': Autonomy.High, 'failed': Autonomy.High},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
 
 
@@ -306,7 +308,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Simulate cutter 2',
 										CheckConditionState(predicate=lambda x: x == True),
 										transitions={'true': 'Pick up battery', 'false': 'Activate cutter'},
-										autonomy={'true': Autonomy.Full, 'false': Autonomy.Full},
+										autonomy={'true': Autonomy.High, 'false': Autonomy.High},
 										remapping={'input_value': 'simulate_cutter'})
 
 			# x:741 y:37
@@ -331,7 +333,7 @@ class CuttingPCBSM(Behavior):
 			OperatableStateMachine.add('Vacuum timer_3_2',
 										WaitState(wait_time=self.vacuum_time),
 										transitions={'done': 'Move to safe position before cutter_2'},
-										autonomy={'done': Autonomy.Full})
+										autonomy={'done': Autonomy.High})
 
 			# x:899 y:381
 			OperatableStateMachine.add('Activate cutter',

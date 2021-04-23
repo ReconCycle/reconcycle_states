@@ -10,6 +10,7 @@
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from flexbe_states.wait_state import WaitState
 from myflexgit_flexbe_states.avtivate_raspi_output import ActivateRaspiDigitalOuput
+from myflexgit_flexbe_states.call_cart_rel_action_server import CallCartRel
 from myflexgit_flexbe_states.call_joint_trap_vel_action_server import CallJointTrap
 from myflexgit_flexbe_states.read_from_mongodb import ReadFromMongo
 # Additional imports can be added inside the following tags
@@ -62,6 +63,7 @@ class ChangetoolonrobotSM(Behavior):
 		_state_machine.userdata.open_air_block = False
 		_state_machine.userdata.tool_drop_aim = 'panda2_tool1_aim1'
 		_state_machine.userdata.tool_take_aim = 'panda2_tool2_aim1'
+		_state_machine.userdata.trans_value = [0.0, 0.0, -0.008]
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -102,7 +104,7 @@ class ChangetoolonrobotSM(Behavior):
 			OperatableStateMachine.add('Move to robot position',
 										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
+										autonomy={'continue': Autonomy.High, 'failed': Autonomy.High},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
 
 
@@ -222,7 +224,7 @@ class ChangetoolonrobotSM(Behavior):
 
 
 		with _state_machine:
-			# x:130 y:38
+			# x:53 y:60
 			OperatableStateMachine.add('Move over drop location',
 										_sm_move_over_drop_location_7,
 										transitions={'finished': 'Move to drop_2', 'failed': 'failed'},
@@ -274,7 +276,7 @@ class ChangetoolonrobotSM(Behavior):
 			# x:754 y:633
 			OperatableStateMachine.add('Move to take ',
 										_sm_move_to_take__1,
-										transitions={'finished': 'Lock tool', 'failed': 'failed'},
+										transitions={'finished': 'Press to tool', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'position_name': 'tool_take_location_name'})
 
@@ -292,6 +294,13 @@ class ChangetoolonrobotSM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'value': 'open_air_block', 'success': 'success'})
 
+			# x:547 y:653
+			OperatableStateMachine.add('Press to tool',
+										CallCartRel(exe_time=3, namespace='panda_2'),
+										transitions={'continue': 'Lock tool', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'trans_value': 'trans_value', 'success': 'success'})
+
 			# x:900 y:44
 			OperatableStateMachine.add('Unlock tool',
 										ActivateRaspiDigitalOuput(service_name=self.tool_unlock_service_name),
@@ -301,7 +310,7 @@ class ChangetoolonrobotSM(Behavior):
 
 			# x:945 y:133
 			OperatableStateMachine.add('Wait to lock',
-										WaitState(wait_time=2),
+										WaitState(wait_time=1),
 										transitions={'done': 'Move over drop location_2'},
 										autonomy={'done': Autonomy.Off})
 

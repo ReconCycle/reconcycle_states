@@ -34,11 +34,11 @@ class PickplasticfromclampSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('clamp_service_name', '/obr_activate')
-		self.add_parameter('max_acl', 0.5)
+		self.add_parameter('max_acl', 1)
 		self.add_parameter('namespace', 'panda_1')
-		self.add_parameter('max_vel', 0.6)
-		self.add_parameter('max_vel_contact', 0.4)
-		self.add_parameter('max_acl_contact', 0.3)
+		self.add_parameter('max_vel', 1)
+		self.add_parameter('max_vel_contact', 0.3)
+		self.add_parameter('max_acl_contact', 0.2)
 
 		# references to used behaviors
 
@@ -158,7 +158,7 @@ class PickplasticfromclampSM(Behavior):
 
 			# x:500 y:117
 			OperatableStateMachine.add('Move to robot position',
-										CallJointTrap(max_vel=self.max_vel_contact, max_acl=self.max_acl_contact, namespace=self.namespace),
+										CallJointTrap(max_vel=self.max_vel, max_acl=self.max_acl, namespace=self.namespace),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'joints_data': 'joints_positions', 'joint_values': 'joint_values'})
@@ -217,7 +217,7 @@ class PickplasticfromclampSM(Behavior):
 
 			# x:931 y:28
 			OperatableStateMachine.add('Release object',
-										MoveSoftHand(motion_duration=3, motion_timestep=0.1),
+										MoveSoftHand(motion_duration=2, motion_timestep=0.1),
 										transitions={'continue': 'Move to safe spot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'goal_hand_pos': 'open_hand', 'success': 'success'})

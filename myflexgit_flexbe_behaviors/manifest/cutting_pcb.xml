@@ -18,12 +18,12 @@
 
 		<param type="text" name="namespace" default="panda_2" label="namespace" hint="Sets the namespace" />
 
-		<param type="numeric" name="max_vel" default="0.2" label="max_vel" hint="Sets the max_vel">
+		<param type="numeric" name="max_vel" default="0.6" label="max_vel" hint="Sets the max_vel">
 			<min value="0" />
 			<max value="1" />
 		</param>
 
-		<param type="numeric" name="max_acl" default="0.2" label="max_acl" hint="Sets the max_acl for trap joint vel">
+		<param type="numeric" name="max_acl" default="0.6" label="max_acl" hint="Sets the max_acl for trap joint vel">
 			<min value="0" />
 			<max value="1" />
 		</param>
@@ -37,9 +37,19 @@
 
 		<param type="text" name="vacuum_service" default="/Panda2Vacuum" label="vacuum_service" hint="Sets the vacuum_service name" />
 
-		<param type="numeric" name="vacuum_time" default="3" label="vacuum_time" hint="Sets the vacuum_time">
+		<param type="numeric" name="vacuum_time" default="2" label="vacuum_time" hint="Sets the vacuum_time">
 			<min value="1" />
 			<max value="10" />
+		</param>
+
+		<param type="numeric" name="max_vel_contact" default="0.4" label="max_vel_contact" hint="Sets the max_vel_contact">
+			<min value="0" />
+			<max value="1" />
+		</param>
+
+		<param type="numeric" name="max_acl_contact" default="0.4" label="max_acl_contact" hint="Sets the max_acl_contact">
+			<min value="0" />
+			<max value="1" />
 		</param>
 
 	</params>
